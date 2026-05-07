@@ -6,9 +6,9 @@ create table usuario(
     contrasenia varchar(25) not null,
     rol enum('administrador','profesor')
 );
-
-create table vistas(
-	numVista int primary key auto_increment not null,
+-- visitas
+create table visitas(
+	numVisita int primary key auto_increment not null,
     fecha date not null,
     idUsuario int,
     foreign key(idUsuario) references usuario(idUsuario),
@@ -41,7 +41,7 @@ create table balda(
 	numBalda int not null,
 	idArmario int,
 	foreign key(idArmario) references armario(idArmario),
-	CHECK (numBalda > 0) -- habrá que mirar cuantas baldas hay
+	CHECK (numBalda > 0 and numBalda < 12) -- habrá que mirar cuantas baldas hay
 );
 
 create table ubicacion(
