@@ -94,11 +94,11 @@ public class Objeto {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Objeto: \n");
-        sb.append("idObjeto: ").append(idObjeto).append("\n");
-        sb.append(", nombre: ").append(nombre).append("\n");
-        sb.append(", nombreCategoria: ").append(nombreCategoria).append("\n");
-        sb.append(", posicionUbicacion: ").append(posicionUbicacion).append("\n");
-        sb.append(", estadoActual: ").append(estadoActual).append("\n");
+        sb.append("Id Objeto: ").append(idObjeto).append("\n");
+        sb.append("Nombre: ").append(nombre).append("\n");
+        sb.append("Nombre Categoria: ").append(nombreCategoria).append("\n");
+        sb.append("Ubicacion: ").append(posicionUbicacion).append("\n");
+        sb.append("Estado Actual: ").append(estadoActual).append("\n");
         return sb.toString();
     }
     
