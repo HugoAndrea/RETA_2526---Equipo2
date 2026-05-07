@@ -10,5 +10,37 @@ package com.mycompany.inventario.model;
  * representa una categoría (id, nombre)
  */
 public class Categoria {
+    private int id;
+    private String nombre;
+
+    // con id para imprimir
+    public Categoria(int id, String nombre) {
+        this.id = id;
+        this.nombre = nombre;
+    }
+
+    // sin id para insertar
+    public Categoria(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Categoria: \n");
+        sb.append("Id: ").append(id).append("\n");
+        sb.append("Nombre: ").append(nombre).append("\n");
+        return sb.toString();
+    }
+    
+    
     
 }

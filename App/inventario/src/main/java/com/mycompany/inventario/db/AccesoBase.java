@@ -27,14 +27,14 @@ public class AccesoBase {
     private String usuario;
     
     public void cargarArchivo(){
-        try(FileInputStream file = new FileInputStream("nombre del archivo")){
+        try(FileInputStream file = new FileInputStream("configuracion.properties")){
             prop.load(file);
             
             this.url = prop.getProperty("db.url");
             this.usuario = prop.getProperty("db.usuario");
             this.clave = prop.getProperty("db.clave");
             
-            System.out.println("Configuracion Cargada");
+            System.out.println("Configuración Cargada");
         } catch (IOException e) {
             System.out.println("Error al cargar el archivo con configuraciones");
         }
