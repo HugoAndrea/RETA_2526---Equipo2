@@ -7,7 +7,10 @@ package com.mycompany.inventario.model;
 /**
  *
  * @author DAW104
+ * Tabla: balda (idBalda, numBalda, idArmario)
  */
 public class Balda {
-    
+    private int idBalda;
+    private int numBalda;
+    private int idArmario;
 }

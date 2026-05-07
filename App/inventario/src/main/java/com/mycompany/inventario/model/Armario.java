@@ -12,19 +12,16 @@ package com.mycompany.inventario.model;
 public class Armario {
     private int id;
     private String nombre;
-    private int baldas; // en futuro se actualiza la base de datos
 
     // dos constructores, uno para sacar el armario con id 
-    public Armario(int id, String nombre, int baldas) {
+    public Armario(int id, String nombre) {
         this.id = id;
         this.nombre = nombre;
-        this.baldas = baldas;
     }
 
     // otro para insertar sin id porque es autoincrement
-    public Armario(String nombre, int baldas) {
+    public Armario(String nombre) {
         this.nombre = nombre;
-        this.baldas = baldas;
     }
 
     public int getId() {
@@ -35,17 +32,12 @@ public class Armario {
         return nombre;
     }
 
-    public int getBaldas() {
-        return baldas;
-    }
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Armario: \n");
         sb.append("Id: ").append(id).append("\n");
         sb.append("Nombre: ").append(nombre).append("\n");
-        sb.append("Baldas: ").append(baldas).append("\n");
         return sb.toString();
     }
     
