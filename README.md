@@ -1,4 +1,4 @@
-# 📦 RETA_2526: Gestión y Localización del Material del Taller de Informática
+# 📖 RETA_2526: Gestión y Localización del Material del Taller de Informática
 
 El objetivo de este trabajo grupal, será crear con los conocimientos adquiridos en cada módulo a lo largo del curso, una página web y aplicación de escritorio, con su correspondiente base de datos, que permitan a los usuarios hacer un seguimiento preciso del inventario del taller de informática del instituto, el proyecto se desplegará en dos máquinas virtuales de linux que deberán ser previamente preparadas para que puedan conectarse la una con la otra.
 
@@ -66,6 +66,29 @@ Se diseñará e implementará una base de datos relacional MySQL alojada en MV1 
 Cada elemento registrará como mínimo: ID, nombre, descripción, categoría/subcategoría, estado (operativo/averiado/en reparación/obsoleto), cantidad, código de armario y balda, fecha de alta y observaciones.
 
 Se implementarán uno o varios disparadores (triggers) que automaticen operaciones relevantes del inventario.
+
+## 🗂️ Organización de Carpetas
+
+*   **.github/ISSUE_TEMPLATE 📁**
+Estructura del cuaderno de trabajo.
+*   **App 📁**
+Aplicación/ .java ejecutable terminado.
+*   **Assets 📁**
+Archivos miscelaneos (imágenes, videos, etc).
+*   **Config 📁**
+Archivos relacionados con la configuración de herramientas.
+*   **DB 📁**
+Script y diagramas de la base de datos.
+*   **Documentación 📁**
+Documentos explicativos de la realización del reto.
+*   **Index 📁**
+Archivos .HTML y .JS.
+*   **Instrucciones_cuaderno_trabajo 📁**
+Ejemplo de como escribir el cuaderno de trabajo.
+*   **Styles 📁**
+Archivo .CSS.
+*   **Tests 📁**
+Pruebas/ archivos temporales
 
 ## 👥 Integrantes del Grupo
 
