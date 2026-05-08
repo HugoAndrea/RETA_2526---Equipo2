@@ -66,6 +66,10 @@ public class AccesoBase {
         private static final AccesoBase INSTANCE = new AccesoBase();
     }
     
+    public static AccesoBase getInstance(){
+        return AccesoBaseDatosHolder.INSTANCE;
+    }
+    
     public Connection getConn(){
         try{
             if (conn == null && !conn.isClosed()) {
