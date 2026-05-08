@@ -24,14 +24,14 @@ public class Objeto {
     public Objeto() {
     }
 
-    public Objeto(int idObjeto, String nombre, int idUbicacion, int idCategoria, String nombreCategoria, String posicionUbicacion, String estadoActual) {
+    public Objeto(int idObjeto, String nombre, int idUbicacion, int idCategoria) {
         this.idObjeto = idObjeto;
         this.nombre = nombre;
         this.idUbicacion = idUbicacion;
         this.idCategoria = idCategoria;
-        this.nombreCategoria = nombreCategoria;
-        this.posicionUbicacion = posicionUbicacion;
-        this.estadoActual = estadoActual;
+//        this.nombreCategoria = nombreCategoria;
+//        this.posicionUbicacion = posicionUbicacion;
+//        this.estadoActual = estadoActual;
     }
 
     public int getIdObjeto() {
