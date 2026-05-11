@@ -5,6 +5,7 @@
 package com.mycompany.inventarop.controller;
 
 import com.mycompany.inventario.dao.UsuarioDAO;
+import com.mycompany.inventario.dao.VistaDAO;
 import com.mycompany.inventario.model.Usuario;
 import java.util.List;
 
@@ -15,14 +16,13 @@ import java.util.List;
  * gestiona el login y sabe qué perfil tiene el usuario (admin o profesor)
  */
 public class UsuarioController {
-    private final UsuarioDAO usuarioDAO;
     
     //para mantener la sesion del usuario logueado en la aplicacion
     private static Usuario usuarioSesion;
+    private UsuarioDAO usuarioDAO = new UsuarioDAO();
+    private VistaDAO vista = new VistaDAO();
     
-    public UsuarioController(){
-        this.usuarioDAO = new UsuarioDAO();
-    }
+
     
     
     /**
@@ -36,26 +36,27 @@ public class UsuarioController {
         
         if (u != null) {
             usuarioSesion = null;
+            vista.registrarAcceso(u.getIdUsuario()); // registramos el acceso
             return true;
         }
         return false;
     }
     
+    /** 
+    * 
+    * @return el usuario que tiene la sesion iniciada
+    */
+    public static Usuario getUsuarioSesion(){
+        return usuarioSesion;
+    }
+    
     /**
-     * cerrar la sesion 
+     * cerrar la sesion poniendo usuariosSesion a null, osea el objeto usuario a null
      */
     public void cerrarSesion(){
         usuarioSesion = null;
     }
     
-    
-    /** 
-     * 
-     * @return el usuario que tiene la sesion iniciada
-     */
-    public static Usuario getUsuarioSesion(){
-        return usuarioSesion;
-    }
     
     /**
      * 
@@ -66,6 +67,9 @@ public class UsuarioController {
         return usuarioDAO.modificar(u);
     }
     
+    public boolean esAdmin(){
+        return usuarioSesion != null && "administrador".equalsIgnoreCase(usuarioSesion.getRol());
+    }
     
     /**
      * 
@@ -76,6 +80,7 @@ public class UsuarioController {
         return usuarioDAO.eliminar(id);
     }
     
+    
     /**
      * 
      * @return metodo de usuarioDAO que devuelve una lista
@@ -83,4 +88,5 @@ public class UsuarioController {
     public List<Usuario> listarUsuarios(){
         return usuarioDAO.listarUsuarios();
     }
+
 }

@@ -11,6 +11,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
@@ -160,6 +161,45 @@ public class ObjetoDAO {
             }
         } catch (SQLException e) {
             Teclado.error("Error al buscar el objeto");
+            Teclado.error(e.getMessage());
+        }
+        return lista;
+    }
+    
+     public List<Objeto> listarTodos() {
+        List<Objeto> lista = new ArrayList<>();
+        String sql =
+            "SELECT o.idObjetoInventario, o.nombre, o.idUbicacion, o.idCategoria, " +
+            "       c.nombre AS nombreCategoria, " +
+            "       CONCAT(a.nombre, ' - Balda ', b.numBalda, ' - ', u.posicion) AS posicionCompleta, " +
+            "       e.nombre AS estadoActual " +
+            "FROM objetoInventario o " +
+            "LEFT JOIN categoria c ON o.idCategoria = c.idCategoria " +
+            "LEFT JOIN ubicacion u ON o.idUbicacion = u.idUbicacion " +
+            "LEFT JOIN balda b ON u.idBalda = b.idBalda " +
+            "LEFT JOIN armario a ON b.idArmario = a.idArmario " +
+            "LEFT JOIN historialEstado h ON h.idObjetoInventario = o.idObjetoInventario " +
+            "  AND h.fecha = (SELECT MAX(h2.fecha) FROM historialEstado h2 " +
+            "                 WHERE h2.idObjetoInventario = o.idObjetoInventario) " +
+            "LEFT JOIN estado e ON h.idEstado = e.idEstado " +
+            "ORDER BY o.nombre";
+ 
+        try (Statement st = getConn().createStatement(); ResultSet rs = st.executeQuery(sql)) {
+            
+            while (rs.next()) {
+                Objeto o = new Objeto(
+                    rs.getInt("idObjetoInventario"),
+                    rs.getString("nombre"),
+                    rs.getInt("idUbicacion"),
+                    rs.getInt("idCategoria")
+                );
+                o.setNombreCategoria(rs.getString("nombreCategoria"));
+                o.setPosicionUbicacion(rs.getString("posicionCompleta"));
+                o.setEstadoActual(rs.getString("estadoActual"));
+                lista.add(o);
+            }
+        } catch (SQLException e) {
+            Teclado.error("Error al listar los objeto");
             Teclado.error(e.getMessage());
         }
         return lista;
