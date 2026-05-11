@@ -5,7 +5,7 @@
 package com.mycompany.inventario.dao;
 
 import com.mycompany.inventario.db.AccesoBase;
-import com.mycompany.inventario.model.Armario;
+import com.mycompany.inventario.model.Estado;
 import com.mycompany.inventario.util.Teclado;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -15,30 +15,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 
+ *
  * @author DAW104
- * 
- * 
- * listar todo();
  */
-public class ArmarioDAO {
+public class EstadoDAO {
     private Connection conn = AccesoBase.getInstance().getConn();
     
-    public List<Armario> listarTodos(){
-        List<Armario> lista = new ArrayList<>();
-        String sql = "SELECT * FROM armario ORDER BY nombre";
+    public List<Estado> listarTodos(){
+        String sql = "SELECT * FROM estado ORDER BY nombre";
+        List<Estado> lista = new ArrayList<>();
         
         try(Statement st = conn.createStatement()){
             ResultSet rs = st.executeQuery(sql);
-            
             while(rs.next()){
-                lista.add(new Armario(
-                        rs.getInt("idArmario"),
+                lista.add(new Estado(
+                        rs.getInt("idEstado"),
                         rs.getString("nombre")
                 ));
             }
         } catch (SQLException e) {
-            Teclado.error("Error al listar armarios");
+            Teclado.error("Error al lista estados");
             Teclado.error(e.getMessage());
         }
         return lista;
