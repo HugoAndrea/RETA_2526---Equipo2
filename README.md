@@ -67,10 +67,6 @@ Cada elemento registrará como mínimo: ID, nombre, descripción, categoría/sub
 
 Se implementarán uno o varios disparadores (triggers) que automaticen operaciones relevantes del inventario.
 
-## Licencia
-
-Este proyecto está distribuido bajo la licencia MIT.
-Consulta el archivo LICENSE para más información.
 
 ## 🗂️ Organización de Carpetas
 
@@ -113,3 +109,8 @@ En este proyecto trabajan:
 *   **Configuración y gestión de MVs** Oracle VirtualBox.
 *   **Control de Versiones:** GitHub, GitHub desktop.
 
+
+## 📃 Licencia
+
+Este proyecto está distribuido bajo la licencia MIT.
+Consulta el archivo LICENSE para más información.
