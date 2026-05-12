@@ -23,14 +23,30 @@ public class BusquedaController {
     
     private ObjetoDAO dao = new ObjetoDAO();
     
+    /**
+     * Busca objeto por 4 criterios dados
+     * @param nombre
+     * @param codigo
+     * @param categoria
+     * @param estdao
+     * @return 
+     */
     public List<Objeto> buscar(String nombre, String codigo, String categoria, String estdao){
         return dao.buscar(nombre, codigo, categoria, estdao);
     }
-    
+    /**
+     * busca unicamente por codigo/id del objeto
+     * @param codigo
+     * @return 
+     */
     public List<Objeto> buscarPorCodigo(String codigo){
         return dao.buscar("", codigo, "", "");
     }
     
+    /**
+     * Abre el navegador en el sitio web de localizacion en la mv
+     * @return 
+     */
     public boolean abrirLocalizacion(){
         
         try{
