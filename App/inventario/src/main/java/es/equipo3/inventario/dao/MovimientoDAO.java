@@ -6,6 +6,7 @@ package es.equipo3.inventario.dao;
 
 import es.equipo3.inventario.db.AccesoBase;
 import es.equipo3.inventario.model.Movimiento;
+import es.equipo3.inventario.model.TipoMovimiento;
 import es.equipo3.inventario.util.Teclado;
 import java.sql.Connection;
 import java.sql.Date;
@@ -19,6 +20,7 @@ import java.util.List;
 /**
  *
  * @author DAW104
+ * Los metodos que manejan/acceden a la base de datos del objeto movimiento 
  */
 public class MovimientoDAO {
     
@@ -34,7 +36,7 @@ public class MovimientoDAO {
                 + "VALUES (?,?,?,?,?)";
         
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, m.getTipo());
+            ps.setString(1, m.getTipo().name());
             ps.setInt(2, m.getCantidad());
             ps.setDate(3, Date.valueOf(m.getFecha()));
             ps.setInt(4, m.getIdUsuario());
@@ -65,7 +67,7 @@ public class MovimientoDAO {
             while (rs.next()) {
                 Movimiento m = new Movimiento(
                         rs.getInt("idMovimiento"),
-                        rs.getString("tipo"),
+                        TipoMovimiento.desde(rs.getString("tipo")),
                         rs.getInt("cantidad"),
                         rs.getDate("fecha").toLocalDate(),
                         rs.getInt("idUsuario"),
@@ -102,7 +104,7 @@ public class MovimientoDAO {
             while(rs.next()){
                 Movimiento m = new Movimiento(
                         rs.getInt("idMovimiento"),
-                        rs.getString("tipo"),
+                        TipoMovimiento.desde(rs.getString("tipo")),
                         rs.getInt("cantidad"),
                         rs.getDate("fecha").toLocalDate(),
                         rs.getInt("idUsuario"),

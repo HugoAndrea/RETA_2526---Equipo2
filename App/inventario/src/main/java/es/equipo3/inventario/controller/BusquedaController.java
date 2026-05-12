@@ -4,6 +4,13 @@
  */
 package es.equipo3.inventario.controller;
 
+import es.equipo3.inventario.dao.ObjetoDAO;
+import es.equipo3.inventario.model.Objeto;
+import es.equipo3.inventario.util.Teclado;
+import java.awt.Desktop;
+import java.net.URI;
+import java.util.List;
+
 /**
  *
  * @author DAW104
@@ -11,5 +18,31 @@ package es.equipo3.inventario.controller;
  * gestiona los filtros de búsqueda y abre el navegador web para localizar un elemento
  */
 public class BusquedaController {
+    // se cambia cuando lo acabamos en la maquina virtual 
+    private static final String URL = "file:///D:/Usuarios/DAW123/Desktop/Web_reto/Plano.html";
     
+    private ObjetoDAO dao = new ObjetoDAO();
+    
+    public List<Objeto> buscar(String nombre, String codigo, String categoria, String estdao){
+        return dao.buscar(nombre, codigo, categoria, estdao);
+    }
+    
+    public List<Objeto> buscarPorCodigo(String codigo){
+        return dao.buscar("", codigo, "", "");
+    }
+    
+    public boolean abrirLocalizacion(){
+        
+        try{
+            // me lo ha hecho ia porque cuando queria abrir la web desde la aplicación
+            if (Desktop.isDesktopSupported()) {
+                Desktop.getDesktop().browse(new URI(URL));
+                return true;
+            }        
+        } catch (Exception e) {
+            Teclado.error("Error al abrir el navegador");
+            Teclado.error(e.getMessage());
+        }
+        return false;
+    }
 }

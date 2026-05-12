@@ -17,10 +17,15 @@ import java.util.List;
 /**
  *
  * @author DAW104
+ * 
  */
 public class EstadoDAO {
     private Connection conn = AccesoBase.getInstance().getConn();
     
+    /**
+     * 
+     * @return lista con estados ordenados por nombre
+     */
     public List<Estado> listarTodos(){
         String sql = "SELECT * FROM estado ORDER BY nombre";
         List<Estado> lista = new ArrayList<>();

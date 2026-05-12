@@ -23,6 +23,11 @@ public class HistorialEstadoDAO {
 
     private Connection conn = AccesoBase.getInstance().getConn();
 
+    /**
+     * 
+     * @param h HistorialEstado
+     * @return true o false, depende de si se ha insertado o no
+     */
     public boolean insertar(HistorialEstado h) {
         String sql = "INSERT INTO hisotrialEstado (fecha, idObjetoInventario, idEstado, idUsuario)"
                 + "VALUES (?,?,?,?)";
@@ -76,7 +81,11 @@ public class HistorialEstadoDAO {
         return lista;
     }
 
-    
+    /**
+     * 
+     * @param idObjeto 
+     * @return retorna el objeto HistorialEstado, el ultimo que se ha emitido
+     */
     public HistorialEstado listarUltimoEstado(int idObjeto){
         String sql = "SELECT h.*, e.nombre AS nombreEstado, u.nombre AS nombreUsuario"
                 + "FROM historialEstado h"
@@ -85,7 +94,6 @@ public class HistorialEstadoDAO {
                 + "WHERE h.idObjetoInventario = ?"
                 + "ORDER BY h.fecha DESC LIMIT 1";
         
-        // creo que se podria usar el simplemente el Statement
         try(PreparedStatement ps = conn.prepareStatement(sql)){
             ps.setInt(1, idObjeto);
             ResultSet rs = ps.executeQuery();

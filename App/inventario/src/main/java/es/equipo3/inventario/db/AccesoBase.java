@@ -15,6 +15,9 @@ import java.util.Properties;
  *
  * @author DAW104
  * 
+ * Atencion!!
+ * "Esta clase la he copiado del 'crudBasico' que hemos hecho en clase"
+ * 
  * conexion a la base de datos 
  * getInstance();
  */

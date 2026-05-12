@@ -24,6 +24,10 @@ import java.util.List;
 public class ArmarioDAO {
     private Connection conn = AccesoBase.getInstance().getConn();
     
+    /**
+     * 
+     * @return retorna lista de armarios disponibles, se ordena en orden alfabético por el nombre
+     */
     public List<Armario> listarTodos(){
         List<Armario> lista = new ArrayList<>();
         String sql = "SELECT * FROM armario ORDER BY nombre";

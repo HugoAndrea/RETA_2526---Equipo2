@@ -78,7 +78,7 @@ public class UsuarioDAO {
     
     /**
     *   modificar un usuario existente
-    *   @param password
+    *   @param Usuario u
     *   @return usuario si las credenciales son correctas
     */
     public boolean modificar(Usuario u){

@@ -4,9 +4,13 @@
  */
 package es.equipo3.inventario.controller;
 
+import es.equipo3.inventario.dao.HistorialEstadoDAO;
 import es.equipo3.inventario.dao.ObjetoDAO;
+import es.equipo3.inventario.model.HistorialEstado;
 import es.equipo3.inventario.model.Objeto;
+import es.equipo3.inventario.model.Usuario;
 import es.equipo3.inventario.util.Teclado;
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -19,6 +23,7 @@ import java.util.List;
  */
 public class InventarioController {
     private ObjetoDAO dao = new ObjetoDAO();
+    private HistorialEstadoDAO hdao = new HistorialEstadoDAO();
     
     /**
      * dar de alta a un objeto nuevo y validar el nombre
@@ -28,6 +33,12 @@ public class InventarioController {
     public boolean altaObjeto(Objeto o){
         if (!Teclado.textoValido(o.getNombre(), 30)) {
             return false;
+        }
+        if (o.getFechaAlta() == null) {
+            o.setFechaAlta(LocalDate.now());
+        }
+        if (o.getCantidad() <= 0) {
+            o.setCantidad(1);
         }
         return dao.insertar(o);
     }
@@ -61,15 +72,28 @@ public class InventarioController {
         return dao.listarTodos();
     }
     
-    
     /**
-     * parametros necesiarios para buscar el objeto
-     * @param nombre
+     * busca objetos por los criterios dados
+     * @param nombr
+     * @param codigo
      * @param categoria
      * @param estado
-     * @return uso el metodo que he creado anteriormente en clase objetoDAO
+     * @return objeto
      */
-    public List<Objeto> buscar(String nombre, String categoria, String estado){
-        return dao.buscar(nombre, categoria, estado);
+    public List<Objeto> buscar(String nombr, String codigo, String categoria, String estado){
+        return dao.buscar(nombr, codigo, categoria, estado);
+    }
+    
+    public boolean cambiarEstado(int idObj, int idEstado, Usuario us){
+        if (us == null) {
+            return false;
+        }
+        HistorialEstado h = new HistorialEstado();
+        h.setIdObjeto(idObj);
+        h.setIdEstado(idEstado);
+        h.setIdUsuario(us.getIdUsuario());
+        h.setFecha(LocalDate.now());
+        return hdao.insertar(h);
+        
     }
 }

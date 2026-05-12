@@ -12,7 +12,7 @@ import java.time.LocalDate;
  */
 public class Movimiento {
     private int idMovimiento;
-    private String tipo;
+    private TipoMovimiento tipo;
     private int cantidad;
     private LocalDate fecha;
     private int idUsuario;
@@ -25,14 +25,24 @@ public class Movimiento {
     public Movimiento() {
     }
 
-    public Movimiento(int idMovimiento, String tipo, int cantidad, LocalDate fecha, int idUsuario, int idObj) {
+    public Movimiento(int idMovimiento, TipoMovimiento tipo, int cantidad, LocalDate fecha, int idUsuario, int idObj) {
         this.idMovimiento = idMovimiento;
         this.tipo = tipo;
         this.cantidad = cantidad;
         this.fecha = fecha;
         this.idUsuario = idUsuario;
         this.idObj = idObj;
+
     }
+
+    public TipoMovimiento getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(TipoMovimiento tipo) {
+        this.tipo = tipo;
+    }
+
 
     public int getIdMovimiento() {
         return idMovimiento;
@@ -40,14 +50,6 @@ public class Movimiento {
 
     public void setIdMovimiento(int idMovimiento) {
         this.idMovimiento = idMovimiento;
-    }
-
-    public String getTipo() {
-        return tipo;
-    }
-
-    public void setTipo(String tipo) {
-        this.tipo = tipo;
     }
 
     public int getCantidad() {
@@ -96,6 +98,14 @@ public class Movimiento {
 
     public void setNombreObj(String nombreObj) {
         this.nombreObj = nombreObj;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("cantidad - ").append(cantidad);
+        sb.append(", fecha - ").append(fecha);
+        return sb.toString();
     }
     
     
