@@ -1,4 +1,5 @@
 create database if not exists inventario;
+use inventario;
 
 create table usuario(
 	idUsuario int primary key auto_increment not null,
@@ -6,14 +7,19 @@ create table usuario(
     contrasenia varchar(25) not null,
     rol enum('administrador','profesor')
 );
--- visitas
-create table visitas(
+
+alter table usuario 
+modify contrasenia varchar(255);-- modificación 1
+
+
+create table visitas(-- visitas
 	numVisita int primary key auto_increment not null,
     fecha date not null,
     idUsuario int,
     foreign key(idUsuario) references usuario(idUsuario),
     CHECK (fecha is not null)
 );
+
 
 
 create table informe(
@@ -59,6 +65,12 @@ create table objetoInventario(
 	foreign key (idUbicacion) references ubicacion(idUbicacion),
 	foreign key (idCategoria) references categoria(idCategoria)
 );
+
+alter table objetoinventario
+add column descripcion varchar(200),
+add column cantidad int not null default 1,
+add column fechaAlta date not null,
+add column observaciones varchar(200);-- modificación 2
 
 create table estado(
 	idEstado int primary key auto_increment not null,
