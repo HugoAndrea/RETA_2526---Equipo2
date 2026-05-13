@@ -23,12 +23,16 @@ import java.util.Properties;
  */
 public class AccesoBase {
     
-    //todavia no tengo el archivo, pero en cuanto lo tenga lo cargo
+    //EL ARCHIVO ESTA EN CONFIG
     Properties prop = new Properties();
     private String url;
     private String clave;
     private String usuario;
+    private Connection conn;
     
+    /**
+     *  cargar archivo
+     */
     public void cargarArchivo(){
         try(FileInputStream file = new FileInputStream("configuracion.properties")){
             prop.load(file);
@@ -43,13 +47,13 @@ public class AccesoBase {
         }
     }
     
-    private Connection conn;
+    
     
     private void abrirConexion(){
         try{
             prop.setProperty("url", this.url);
-            prop.setProperty("usuario", this.usuario);
-            prop.setProperty("clave ", this.clave);
+            prop.setProperty("user", this.usuario);
+            prop.setProperty("password", this.clave);
             prop.setProperty("useSSL", "false");
             prop.setProperty("serverTimezone", "Europe/Madrid");
             
@@ -62,6 +66,7 @@ public class AccesoBase {
     }
     
     private AccesoBase(){
+        cargarArchivo();
         abrirConexion();
     }
     
@@ -69,13 +74,21 @@ public class AccesoBase {
         private static final AccesoBase INSTANCE = new AccesoBase();
     }
     
+    /**
+     * 
+     * @return Instancia la base de datos (una unica instancia)
+     */
     public static AccesoBase getInstance(){
         return AccesoBaseDatosHolder.INSTANCE;
     }
     
+    /**
+     * 
+     * @return retorna la conexion
+     */
     public Connection getConn(){
         try{
-            if (conn == null && !conn.isClosed()) {
+            if (conn == null || !conn.isClosed()) {
                 abrirConexion();
             }
         }catch(SQLException e){
@@ -84,6 +97,10 @@ public class AccesoBase {
         return conn;
     }
     
+    /**
+     * cierra la conexion
+     * @return true si se ha cerrado
+     */
     public boolean cerrarConexion(){
         if (conn == null) {
             return true;

@@ -29,8 +29,8 @@ public class HistorialEstadoDAO {
      * @return true o false, depende de si se ha insertado o no
      */
     public boolean insertar(HistorialEstado h) {
-        String sql = "INSERT INTO hisotrialEstado (fecha, idObjetoInventario, idEstado, idUsuario)"
-                + "VALUES (?,?,?,?)";
+        String sql = "INSERT INTO historialEstado (fecha, idObjetoInventario, idEstado, idUsuario) "
+                   + "VALUES (?, ?, ?, ?)";
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setDate(1, Date.valueOf(h.getFecha()));
@@ -87,12 +87,12 @@ public class HistorialEstadoDAO {
      * @return retorna el objeto HistorialEstado, el ultimo que se ha emitido
      */
     public HistorialEstado listarUltimoEstado(int idObjeto){
-        String sql = "SELECT h.*, e.nombre AS nombreEstado, u.nombre AS nombreUsuario"
-                + "FROM historialEstado h"
-                + "JOIN estado e ON h.idEstado = e.idEstado"
-                + "JOIN usuario u ON h.idUsuario = idUsuario"
-                + "WHERE h.idObjetoInventario = ?"
-                + "ORDER BY h.fecha DESC LIMIT 1";
+        String sql = "SELECT h.*, e.nombre AS nombreEstado, u.nombre AS nombreUsuario "
+                   + "FROM historialEstado h "
+                   + "JOIN estado e ON h.idEstado = e.idEstado "
+                   + "JOIN usuario u ON h.idUsuario = u.idUsuario "
+                   + "WHERE h.idObjetoInventario = ? "
+                   + "ORDER BY h.fecha DESC LIMIT 1";
         
         try(PreparedStatement ps = conn.prepareStatement(sql)){
             ps.setInt(1, idObjeto);

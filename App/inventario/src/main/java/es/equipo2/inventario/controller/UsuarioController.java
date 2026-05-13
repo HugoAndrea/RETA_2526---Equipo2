@@ -7,6 +7,7 @@ package es.equipo2.inventario.controller;
 import es.equipo2.inventario.dao.UsuarioDAO;
 import es.equipo2.inventario.dao.VistaDAO;
 import es.equipo2.inventario.model.Usuario;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -35,7 +36,7 @@ public class UsuarioController {
         Usuario u = usuarioDAO.login(user, password);
         
         if (u != null) {
-            usuarioSesion = null;
+            usuarioSesion = u;
             vista.registrarAcceso(u.getIdUsuario()); // registramos el acceso
             return true;
         }
@@ -63,12 +64,26 @@ public class UsuarioController {
      * @param u usuario
      * @return modificar la informacion del usuario 
      */
-    public boolean registrarUsuario(Usuario u){
-        return usuarioDAO.modificar(u);
+    public boolean registrarUsuario(Usuario nuevo, String passAdmin){
+        if (!esAdmin()) {
+            return false;
+        }
+        Usuario verificacion = usuarioDAO.login(usuarioSesion.getUsuario(), passAdmin);
+        if (verificacion == null) {
+            return false;
+        }
+        return usuarioDAO.insertar(nuevo);
     }
     
     public boolean esAdmin(){
         return usuarioSesion != null && "administrador".equalsIgnoreCase(usuarioSesion.getRol());
+    }
+    
+    public boolean modificarUsuario(Usuario u){
+        if (!esAdmin()) {
+            return false;
+        }
+        return usuarioDAO.modificar(u);
     }
     
     /**
@@ -77,15 +92,21 @@ public class UsuarioController {
      * @return el metodo de usuarioDAO que elimina el usuario
      */
     public boolean eliminarUsuario(int id){
+        if (!esAdmin()) {
+            return false;
+        }
         return usuarioDAO.eliminar(id);
     }
     
     
     /**
      * 
-     * @return metodo de usuarioDAO que devuelve una lista
+     * @return metodo de usuarioDAO que devuelve una lista de usuarios, si no es admin una lista vacia
      */
     public List<Usuario> listarUsuarios(){
+        if (!esAdmin()) {
+            return new ArrayList<>();
+        }
         return usuarioDAO.listarUsuarios();
     }
 

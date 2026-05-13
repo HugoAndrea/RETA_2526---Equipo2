@@ -56,11 +56,11 @@ public class UbicacionDAO {
      */
     public List<Ubicacion> listarTodas(){
         List<Ubicacion> lista = new ArrayList<>();
-        String sql = "SELECT * FROM ubicacion WHERE idUbicacion = ?";
+        String sql = "SELECT * FROM ubicacion ORDER BY idBalda, posicion";
         
         try(Statement st = conn.prepareStatement(sql)){
             ResultSet rs = st.executeQuery(sql);
-            while(true){
+            while(rs.next()){
                 lista.add(new Ubicacion(
                         rs.getInt("idUbicacion"),
                         rs.getString("posicion"),

@@ -30,7 +30,7 @@ public class UsuarioDAO {
     }
     
     /**
-    *   login
+    *   login: busca por el nombre y compara el password con BCrypt
     *   @param user Nombre de usuario
     *   @param passwordPlano
     *   @return usuario si las credenciales son correctas
@@ -71,7 +71,7 @@ public class UsuarioDAO {
         
         try(PreparedStatement ps = getConn().prepareStatement(sql)){
             ps.setString(1, u.getUsuario());
-            ps.setString(2, u.getPassword());
+            ps.setString(2, Encriptador.hashear(u.getPassword()));
             ps.setString(3, u.getRol());
             
             return ps.executeUpdate() > 0;
@@ -98,7 +98,6 @@ public class UsuarioDAO {
         try (PreparedStatement ps = getConn().prepareStatement(sql)) {
             ps.setString(1, u.getUsuario());
             if (cambiarPassword) {
-                // encriptamos la contraseña
                 ps.setString(2, Encriptador.hashear(u.getPassword()));
                 ps.setString(3, u.getRol());
                 ps.setInt(4, u.getIdUsuario());

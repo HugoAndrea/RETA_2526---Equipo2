@@ -22,78 +22,74 @@ import java.util.List;
  *  gestiona alta, baja, modificación de elementos. También lanza los hilos de importar/exportar
  */
 public class InventarioController {
-    private ObjetoDAO dao = new ObjetoDAO();
+    private ObjetoDAO          dao  = new ObjetoDAO();
     private HistorialEstadoDAO hdao = new HistorialEstadoDAO();
-    
+ 
     /**
-     * dar de alta a un objeto nuevo y validar el nombre
-     * @param o objeto que queremos dar de alta
-     * @return 
+     * da de alta un objeto nuevo validando el nombre
+     * @param o objeto a insertar
+     * @return true si se inserto correctamente
      */
-    public boolean altaObjeto(Objeto o){
-        if (!Teclado.textoValido(o.getNombre(), 30)) {
-            return false;
-        }
-        if (o.getFechaAlta() == null) {
-            o.setFechaAlta(LocalDate.now());
-        }
-        if (o.getCantidad() <= 0) {
-            o.setCantidad(1);
-        }
+    public boolean altaObjeto(Objeto o) {
+        if (!Teclado.textoValido(o.getNombre(), 30)) return false;
+        if (o.getFechaAlta() == null) o.setFechaAlta(LocalDate.now());
+        if (o.getCantidad() <= 0)     o.setCantidad(1);
         return dao.insertar(o);
     }
-    
+ 
     /**
-     * 
-     * @param o objeto a modificar
-     * @return true o false
+     * modifica un objeto existente
+     * @param o objeto con los datos actualizados
+     * @return true si se modifico correctamente
      */
-    public boolean modificarObjeto(Objeto o){
-        if (!Teclado.textoValido(o.getNombre(), 30)) {
-            return false;
-        }
-        return dao.insertar(o);
+    public boolean modificarObjeto(Objeto o) {
+        if (!Teclado.textoValido(o.getNombre(), 30)) return false;
+        return dao.modificar(o);  // CORREGIDO: antes era dao.insertar(o)
     }
-    
+ 
     /**
-     * 
+     * elimina un objeto por su ID
      * @param id del objeto
-     * @return uso el metodo que he creado anteriormente en clase objetoDAO
+     * @return true si se elimino
      */
-    public boolean bajaObjeto(int id){
+    public boolean bajaObjeto(int id) {
         return dao.eliminar(id);
     }
-    
+ 
     /**
-     * 
-     * @return uso el metodo que he creado anteriormente en clase objetoDAO
+     * Lista todos los objetos del inventario
+     * @return lista de objetos
      */
-    public List<Objeto> listarTodo(){
+    public List<Objeto> listarTodo() {
         return dao.listarTodos();
     }
-    
+ 
     /**
-     * busca objetos por los criterios dados
-     * @param nombr
-     * @param codigo
-     * @param categoria
-     * @param estado
-     * @return objeto
+     * Busca objetos por los 4 criterios del enunciado
+     * @param nombre texto en el nombre
+     * @param codigo ID del objeto como texto
+     * @param categoria texto en la categoria
+     * @param estado texto en el estado
+     * @return lista de objetos que cumplen los criterios
      */
-    public List<Objeto> buscar(String nombr, String codigo, String categoria, String estado){
-        return dao.buscar(nombr, codigo, categoria, estado);
+    public List<Objeto> buscar(String nombre, String codigo, String categoria, String estado) {
+        return dao.buscar(nombre, codigo, categoria, estado);
     }
-    
-    public boolean cambiarEstado(int idObj, int idEstado, Usuario us){
-        if (us == null) {
-            return false;
-        }
+ 
+    /**
+     * Cambia el estado de un objeto y lo registra en historialEstado.
+     * @param idObj ID del objeto
+     * @param idEstado ID del nuevo estado
+     * @param us usuario activo que realiza el cambio
+     * @return true si se registro correctamente
+     */
+    public boolean cambiarEstado(int idObj, int idEstado, Usuario us) {
+        if (us == null) return false;
         HistorialEstado h = new HistorialEstado();
         h.setIdObjeto(idObj);
         h.setIdEstado(idEstado);
         h.setIdUsuario(us.getIdUsuario());
         h.setFecha(LocalDate.now());
         return hdao.insertar(h);
-        
     }
 }

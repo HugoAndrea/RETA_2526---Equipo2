@@ -3,32 +3,50 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package es.equipo2.inventario.util;
-import com.mysql.cj.result.Row;
+
 import es.equipo2.inventario.model.Objeto;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
+// no se porque pero me ha costado una vida encontrar todas las dependencias
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /**
  *
  * @author DAW104
  * 
  * crea un archivo excel con libreria POI
+ * esta clase esta echa con ayuda de ia 
  */
 public class ExportarExcel {
 
-    
+    /**
+     * Devuelve una cadena vacia si el texto es nulo
+     * @param texto texto a comprobar
+     * @return el texto original o "" osea vacio si es nulo 
+     */
     private String nulo(String texto){
         return texto != null ? texto : "";
     }   
     
+    /**
+     * el método crea un libro Excel, añade una hoja llamada
+     * "Inventario", escribe la cabecera y posteriormente
+     * todas las filas con los datos de cada objeto
+     * @param datos objetos del inventario
+     * @param rutaDestino donde se guardara el archivo
+     * @return 
+     */
     public boolean exportar(List<Objeto> datos, String rutaDestino) {
         try (Workbook wb = new XSSFWorkbook();
              FileOutputStream fos = new FileOutputStream(rutaDestino)) {
  
             Sheet sheet = wb.createSheet("Inventario");
  
-            // Fila de cabecera
+            // fila de cabecera
             Row cabecera = sheet.createRow(0);
             cabecera.createCell(0).setCellValue("ID");
             cabecera.createCell(1).setCellValue("Nombre");
@@ -40,7 +58,7 @@ public class ExportarExcel {
             cabecera.createCell(7).setCellValue("Estado");
             cabecera.createCell(8).setCellValue("Observaciones");
  
-            // Filas de datos
+            // filas de datos
             int numFila = 1;
             for (Objeto o : datos) {
                 Row fila = sheet.createRow(numFila++);
