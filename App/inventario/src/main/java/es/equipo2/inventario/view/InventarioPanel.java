@@ -4,11 +4,37 @@
  */
 package es.equipo2.inventario.view;
 
+import es.equipo2.inventario.controller.InventarioController;
+import es.equipo2.inventario.dao.CategoriaDAO;
+import es.equipo2.inventario.dao.ObjetoDAO;
+import es.equipo2.inventario.dao.UbicacionDAO;
+import es.equipo2.inventario.model.Categoria;
+import es.equipo2.inventario.model.Objeto;
+import es.equipo2.inventario.model.Ubicacion;
+import es.equipo2.inventario.util.HiloExportacion;
+import es.equipo2.inventario.util.HiloImportacion;
+import es.equipo2.inventario.util.Teclado;
+import java.awt.*;
+import java.util.List;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+
 /**
- *
+ *  Panel de gestion de inventario, (solo administradores): alta, baja modificar, importar, exportar
+ *  No he tocado (porque no puedo) el initComponents, he creado uno mio, para trabajar en el
+ *  El myInictConcents contiene toda la logicam y el diseño
  * @author DAW104
  */
 public class InventarioPanel extends javax.swing.JPanel {
+
+    private InventarioController controller = new InventarioController();
+    private ObjetoDAO objetoDAO = new ObjetoDAO();
+    private JTable tabla;
+    private DefaultTableModel modeloTabla;
+    private JButton btnAlta, btnModificar, btnBaja;
+    private JButton btnImportar, btnExportar, btnRefrescar;
+    private JTextField txtBuscar;
+    private JLabel lblTotal;
 
     /**
      * Creates new form InventarioPanel
@@ -38,6 +64,360 @@ public class InventarioPanel extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Construye la interfaz del panel de inventario.
+     */
+    private void myInitComponents() {
+        setLayout(new BorderLayout(0, 0));
+        setBackground(Estilo.GRIS_FONDO);
+
+        // Cabecera + toolbar norte
+        JPanel norte = new JPanel(new BorderLayout());
+        norte.add(Estilo.barraHeader("📦  Gestion del Inventario"), BorderLayout.NORTH);
+
+        JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        toolbar.setBackground(Estilo.BLANCO);
+        toolbar.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Estilo.GRIS_LINEA));
+
+        btnAlta = Estilo.botonExito("＋  Alta");
+        btnModificar = Estilo.botonAdvertencia("✎  Modificar");
+        btnBaja = Estilo.botonPeligro("✕  Baja");
+        btnImportar = Estilo.boton("⬆  Importar CSV", new Color(80, 100, 160));
+        btnExportar = Estilo.botonPrimario("⬇  Exportar");
+        btnRefrescar = Estilo.botonPrimario("↺  Refrescar");
+
+        JLabel lblBuscar = Estilo.label("Buscar:");
+        txtBuscar = Estilo.campo(18);
+        JButton btnBuscarRapido = Estilo.botonPrimario("🔍");
+
+        toolbar.add(btnAlta);
+        toolbar.add(btnModificar);
+        toolbar.add(btnBaja);
+        toolbar.add(new JSeparator(SwingConstants.VERTICAL));
+        toolbar.add(btnImportar);
+        toolbar.add(btnExportar);
+        toolbar.add(new JSeparator(SwingConstants.VERTICAL));
+        toolbar.add(btnRefrescar);
+        toolbar.add(Box.createHorizontalStrut(10));
+        toolbar.add(lblBuscar);
+        toolbar.add(txtBuscar);
+        toolbar.add(btnBuscarRapido);
+
+        norte.add(toolbar, BorderLayout.SOUTH);
+
+        // Tabla centro
+        modeloTabla = new DefaultTableModel(
+                new String[]{"ID", "Nombre", "Descripcion", "Cant.", "Fecha Alta",
+                    "Categoria", "Ubicacion", "Estado"}, 0) {
+            @Override
+            public boolean isCellEditable(int r, int c) {
+                return false;
+            }
+
+            @Override
+            public Class<?> getColumnClass(int c) {
+                return (c == 0 || c == 3) ? Integer.class : String.class;
+            }
+        };
+
+        tabla = new JTable(modeloTabla);
+        Estilo.estilizarTabla(tabla);
+        tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        tabla.getColumnModel().getColumn(0).setPreferredWidth(40);
+        tabla.getColumnModel().getColumn(1).setPreferredWidth(150);
+        tabla.getColumnModel().getColumn(2).setPreferredWidth(180);
+        tabla.getColumnModel().getColumn(3).setPreferredWidth(50);
+        tabla.getColumnModel().getColumn(4).setPreferredWidth(90);
+        tabla.getColumnModel().getColumn(5).setPreferredWidth(110);
+        tabla.getColumnModel().getColumn(6).setPreferredWidth(160);
+        tabla.getColumnModel().getColumn(7).setPreferredWidth(100);
+
+        JScrollPane scroll = new JScrollPane(tabla);
+        scroll.setBorder(BorderFactory.createEmptyBorder(10, 12, 10, 12));
+
+        //Pie sur
+        JPanel pie = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 6));
+        pie.setBackground(Estilo.BLANCO);
+        pie.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Estilo.GRIS_LINEA));
+        lblTotal = new JLabel("Total: 0 objetos");
+        lblTotal.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        lblTotal.setForeground(Color.GRAY);
+        pie.add(lblTotal);
+
+        add(norte, BorderLayout.NORTH);
+        add(scroll, BorderLayout.CENTER);
+        add(pie, BorderLayout.SOUTH);
+
+        modeloTabla.addTableModelListener(ev
+                -> lblTotal.setText("Total: " + modeloTabla.getRowCount() + " objetos"));
+
+        // Listeners
+        btnAlta.addActionListener(e -> mostrarDialogoAlta());
+        btnModificar.addActionListener(e -> mostrarDialogoModificar());
+        btnBaja.addActionListener(e -> darBaja());
+        btnRefrescar.addActionListener(e -> cargarDatos());
+        btnExportar.addActionListener(e -> exportar());
+        btnImportar.addActionListener(e -> importarCSV());
+        btnBuscarRapido.addActionListener(e -> buscarRapido());
+        txtBuscar.addActionListener(e -> buscarRapido());
+    }
+
+    public void cargarDatos() {
+        modeloTabla.setRowCount(0);
+        for (Objeto o : controller.listarTodo()) {
+            modeloTabla.addRow(new Object[]{
+                o.getIdObjeto(), o.getNombre(), o.getDescripcion(),
+                o.getCantidad(), o.getFechaAlta(), o.getNombreCategoria(),
+                o.getPosicionUbicacion(), o.getEstadoActual()
+            });
+        }
+    }
+    /**
+     * Busca el texto con un for each
+     */
+    public void buscarRapido() {
+        String texto = txtBuscar.getText().trim();
+        modeloTabla.setRowCount(0);
+        for (Objeto o : controller.buscar(texto, texto, texto, texto)) {
+            modeloTabla.addRow(new Object[]{
+                o.getIdObjeto(), o.getNombre(), o.getDescripcion(),
+                o.getCantidad(), o.getFechaAlta(), o.getNombreCategoria(),
+                o.getPosicionUbicacion(), o.getEstadoActual()
+            });
+        }
+    }
+
+    /**
+     * dos listas en las que usamos dos metodos "mostrar"
+     * si estan vacios saca un mensaje de warning
+     */
+    private void mostrarDialogoAlta() {
+        List<Categoria> cats = new CategoriaDAO().listar();
+        List<Ubicacion> ubis = new UbicacionDAO().listarTodas();
+
+        if (cats.isEmpty() || ubis.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "No hay categorias o ubicaciones en la BD.", "Sin datos",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        JTextField txtNombre = Estilo.campo(22);
+        JTextField txtDesc = Estilo.campo(22);
+        JTextField txtCantidad = Estilo.campo(6);
+        txtCantidad.setText("1");
+        JTextField txtObs = Estilo.campo(22);
+        JComboBox<Categoria> cmbCat = new JComboBox<>(cats.toArray(new Categoria[0]));
+        JComboBox<Ubicacion> cmbUbi = new JComboBox<>(ubis.toArray(new Ubicacion[0]));
+
+        JPanel form = new JPanel(new GridBagLayout());
+        form.setBackground(Estilo.GRIS_FONDO);
+        form.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        GridBagConstraints g = new GridBagConstraints();
+        g.insets = new Insets(5, 5, 5, 5);
+        g.fill = GridBagConstraints.HORIZONTAL;
+
+        String[] lbls = {"Nombre *", "Descripcion", "Cantidad *", "Observaciones", "Categoria *", "Ubicacion *"};
+        Component[] cmps = {txtNombre, txtDesc, txtCantidad, txtObs, cmbCat, cmbUbi};
+        for (int i = 0; i < lbls.length; i++) {
+            g.gridx = 0;
+            g.gridy = i;
+            g.weightx = 0;
+            form.add(Estilo.label(lbls[i]), g);
+            g.gridx = 1;
+            g.weightx = 1;
+            form.add(cmps[i], g);
+        }
+
+        int res = JOptionPane.showConfirmDialog(this, form,
+                "Alta de objeto", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if (res != JOptionPane.OK_OPTION) {
+            return;
+        }
+
+        String nombre = txtNombre.getText().trim();
+        if (!Teclado.textoValido(nombre, 50)) {
+            JOptionPane.showMessageDialog(this, "Nombre no valido (maximo 50 caracteres)");
+            return;
+        }
+
+        int cantidad = 1;
+        try {
+            cantidad = Integer.parseInt(txtCantidad.getText().trim());
+        } catch (NumberFormatException ex) {
+            Teclado.error("Formato de número incorrecto");
+            Teclado.error(ex.getMessage());
+        }
+
+        Objeto o = new Objeto();
+        o.setNombre(nombre);
+        o.setDescripcion(txtDesc.getText().trim());
+        o.setCantidad(cantidad);
+        o.setObservaciones(txtObs.getText().trim());
+        o.setIdCategoria(((Categoria) cmbCat.getSelectedItem()).getId());
+        o.setIdUbicacion(((Ubicacion) cmbUbi.getSelectedItem()).getIdUbicacion());
+
+        if (controller.altaObjeto(o)) {
+            JOptionPane.showMessageDialog(this, "Objeto dado de alta correctamente");
+            cargarDatos();
+        } else {
+            JOptionPane.showMessageDialog(this, "Error al dar de alta",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    /**
+     * Muestra 
+     */
+    private void mostrarDialogoModificar() {
+        int fila = tabla.getSelectedRow();
+        if (fila == -1) {
+            JOptionPane.showMessageDialog(this, "Selecciona un objeto");
+            return;
+        }
+
+        int id = (int) modeloTabla.getValueAt(fila, 0);
+        String nom = (String) modeloTabla.getValueAt(fila, 1);
+        String desc = (String) modeloTabla.getValueAt(fila, 2);
+        int cant = (int) modeloTabla.getValueAt(fila, 3);
+
+        JTextField txtNombre = Estilo.campo(22);
+        txtNombre.setText(nom);
+        JTextField txtDesc = Estilo.campo(22);
+        txtDesc.setText(desc != null ? desc : "");
+        JTextField txtCantidad = Estilo.campo(6);
+        txtCantidad.setText(String.valueOf(cant));
+
+        JPanel form = new JPanel(new GridBagLayout());
+        form.setBackground(Estilo.GRIS_FONDO);
+        form.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        GridBagConstraints g = new GridBagConstraints();
+        g.insets = new Insets(5, 5, 5, 5);
+        g.fill = GridBagConstraints.HORIZONTAL;
+
+        String[] lbls = {"Nombre *", "Descripcion", "Cantidad"};
+        Component[] cmps = {txtNombre, txtDesc, txtCantidad};
+        for (int i = 0; i < lbls.length; i++) {
+            g.gridx = 0;
+            g.gridy = i;
+            g.weightx = 0;
+            form.add(Estilo.label(lbls[i]), g);
+            g.gridx = 1;
+            g.weightx = 1;
+            form.add(cmps[i], g);
+        }
+
+        int res = JOptionPane.showConfirmDialog(this, form,
+                "Modificar objeto", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if (res != JOptionPane.OK_OPTION) {
+            return;
+        }
+
+        String nuevoNombre = txtNombre.getText().trim();
+        if (!Teclado.textoValido(nuevoNombre, 50)) {
+            JOptionPane.showMessageDialog(this, "Nombre no valido");
+            return;
+        }
+        int nuevaCant = cant;
+        try {
+            nuevaCant = Integer.parseInt(txtCantidad.getText().trim());
+        } catch (NumberFormatException ex) {
+            /* mantiene anterior */ }
+
+        Objeto o = new Objeto();
+        o.setIdObjeto(id);
+        o.setNombre(nuevoNombre);
+        o.setDescripcion(txtDesc.getText().trim());
+        o.setCantidad(nuevaCant);
+
+        if (controller.modificarObjeto(o)) {
+            JOptionPane.showMessageDialog(this, "Objeto modificado correctamente");
+            cargarDatos();
+        } else {
+            JOptionPane.showMessageDialog(this, "Error al modificar",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void darBaja() {
+        int fila = tabla.getSelectedRow();
+        if (fila == -1) {
+            JOptionPane.showMessageDialog(this, "Selecciona un objeto");
+            return;
+        }
+
+        int id = (int) modeloTabla.getValueAt(fila, 0);
+        String nom = (String) modeloTabla.getValueAt(fila, 1);
+
+        int ok = JOptionPane.showConfirmDialog(this,
+                "Eliminar el objeto '" + nom + "'?\nEsta accion no se puede deshacer.",
+                "Confirmar baja", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+
+        if (ok == JOptionPane.YES_OPTION) {
+            if (controller.bajaObjeto(id)) {
+                JOptionPane.showMessageDialog(this, "Objeto eliminado correctamente");
+                cargarDatos();
+            } else {
+                JOptionPane.showMessageDialog(this, "Error al eliminar",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    private void importarCSV() {
+        JFileChooser fc = new JFileChooser();
+        fc.setDialogTitle("Seleccionar archivo CSV");
+        fc.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(
+                "Archivos CSV (*.csv)", "csv"));
+
+        if (fc.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+
+        String ruta = fc.getSelectedFile().getAbsolutePath();
+
+        btnImportar.setEnabled(false);
+        btnImportar.setText("Importando...");
+
+        new HiloImportacion(ruta, objetoDAO, () -> {
+            cargarDatos();
+            btnImportar.setEnabled(true);
+            btnImportar.setText("⬆  Importar CSV");
+            JOptionPane.showMessageDialog(this,
+                    "Importacion completada. La tabla ha sido actualizada.",
+                    "Importacion CSV", JOptionPane.INFORMATION_MESSAGE);
+        }).start();
+
+        JOptionPane.showMessageDialog(this,
+                "Importacion iniciada en segundo plano.\nLa tabla se actualizara al terminar.",
+                "Importando CSV", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void exportar() {
+        String[] opciones = {"CSV", "Excel", "PDF"};
+        int sel = JOptionPane.showOptionDialog(this,
+                "Selecciona el formato de exportacion:",
+                "Exportar inventario", JOptionPane.DEFAULT_OPTION,
+                JOptionPane.QUESTION_MESSAGE, null, opciones, opciones[0]);
+        if (sel < 0) {
+            return;
+        }
+
+        JFileChooser fc = new JFileChooser();
+        fc.setDialogTitle("Guardar archivo");
+        if (fc.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+            String formato = opciones[sel].toLowerCase();
+            String ruta = fc.getSelectedFile().getAbsolutePath();
+            if (formato.equals("excel") && !ruta.endsWith(".xlsx")) {
+                ruta += ".xlsx";
+            } else if (!formato.equals("excel") && !ruta.endsWith("." + formato)) {
+                ruta += "." + formato;
+            }
+            new HiloExportacion(formato, ruta, controller.listarTodo()).start();
+            JOptionPane.showMessageDialog(this, "Exportacion iniciada en segundo plano.");
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables

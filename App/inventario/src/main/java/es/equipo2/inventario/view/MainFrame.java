@@ -4,17 +4,30 @@
  */
 package es.equipo2.inventario.view;
 
+import es.equipo2.inventario.controller.UsuarioController;
+import es.equipo2.inventario.model.Usuario;
+import java.awt.*;
+import javax.swing.*;
 /**
  *
  * @author DAW104
  */
 public class MainFrame extends javax.swing.JFrame {
 
+    private UsuarioController uc = new UsuarioController();
+    private JPanel panelContenido;
+    private JButton btnActivo;
+    
     /**
      * Creates new form MainFrame
      */
     public MainFrame() {
+        Usuario u = UsuarioController.getUsuarioSesion();
+        setTitle("Sistema de Inventario  -  " + u.getUsuario() + "  [" + u.getRol() + "]");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setMinimumSize(new Dimension(900, 600));
         initComponents();
+        myInitComponents();
     }
 
     /**
@@ -42,6 +55,128 @@ public class MainFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+   private void myInitComponents() {
+        JPanel raiz = new JPanel(new BorderLayout(0, 0));
+ 
+        // --- Barra superior ---
+        JPanel barraTop = new JPanel(new BorderLayout());
+        barraTop.setBackground(Estilo.AZUL_OSCURO);
+        barraTop.setPreferredSize(new Dimension(0, 52));
+        barraTop.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 20));
+ 
+        JLabel lblApp = new JLabel("  Inventario Taller Informatica");
+        lblApp.setFont(Estilo.FUENTE_SUBTIT);
+        lblApp.setForeground(Estilo.BLANCO);
+ 
+        Usuario u = UsuarioController.getUsuarioSesion();
+        JLabel lblUser = new JLabel("👤  " + u.getUsuario() + "  |  " + u.getRol() + "   ");
+        lblUser.setFont(Estilo.FUENTE_NORMAL);
+        lblUser.setForeground(new Color(180, 210, 250));
+ 
+        barraTop.add(lblApp,  BorderLayout.WEST);
+        barraTop.add(lblUser, BorderLayout.EAST);
+ 
+        // --- Barra lateral ---
+        JPanel barraLateral = new JPanel();
+        barraLateral.setLayout(new BoxLayout(barraLateral, BoxLayout.Y_AXIS));
+        barraLateral.setBackground(new Color(40, 60, 90));
+        barraLateral.setPreferredSize(new Dimension(190, 0));
+        barraLateral.setBorder(BorderFactory.createEmptyBorder(16, 0, 16, 0));
+ 
+        // Panel de contenido central
+        panelContenido = new JPanel(new BorderLayout());
+        panelContenido.setBackground(Estilo.GRIS_FONDO);
+ 
+        // Paneles de cada seccion
+        BusquedaPanel   pBusqueda   = new BusquedaPanel();
+        InformesPanel   pInformes   = new InformesPanel();
+        InventarioPanel pInventario = uc.esAdmin() ? new InventarioPanel() : null;
+        UsuariosPanel   pUsuarios   = uc.esAdmin() ? new UsuariosPanel()   : null;
+ 
+        // Carga la primera pantalla por defecto
+        panelContenido.add(pBusqueda, BorderLayout.CENTER);
+ 
+        // Botones de navegacion
+        btnActivo = crearBtnNav("🔍  Busqueda", barraLateral,
+            () -> cambiar(panelContenido, pBusqueda));
+        marcarActivo(btnActivo);
+ 
+        barraLateral.add(Box.createVerticalStrut(4));
+        crearBtnNav("📋  Informes", barraLateral,
+            () -> cambiar(panelContenido, pInformes));
+ 
+        if (uc.esAdmin()) {
+            barraLateral.add(Box.createVerticalStrut(12));
+            JLabel sep = new JLabel("  ADMINISTRACION");
+            sep.setFont(new Font("Segoe UI", Font.BOLD, 9));
+            sep.setForeground(new Color(130, 160, 200));
+            sep.setMaximumSize(new Dimension(190, 20));
+            barraLateral.add(sep);
+            barraLateral.add(Box.createVerticalStrut(4));
+            crearBtnNav("📦  Inventario", barraLateral,
+                () -> cambiar(panelContenido, pInventario));
+            barraLateral.add(Box.createVerticalStrut(4));
+            crearBtnNav("👥  Usuarios", barraLateral,
+                () -> cambiar(panelContenido, pUsuarios));
+        }
+ 
+        // Boton cerrar sesion al final de la barra
+        barraLateral.add(Box.createVerticalGlue());
+        JButton btnSalir = crearBtnNav("🚪  Cerrar sesion", barraLateral, () -> {
+            uc.cerrarSesion();
+            new LoginFrame().setVisible(true);
+            dispose();
+        });
+        btnSalir.setBackground(new Color(120, 40, 40));
+ 
+        raiz.add(barraTop,       BorderLayout.NORTH);
+        raiz.add(barraLateral,   BorderLayout.WEST);
+        raiz.add(panelContenido, BorderLayout.CENTER);
+ 
+        setContentPane(raiz);
+ 
+        setSize(1100, 700);
+        setLocationRelativeTo(null);
+    }
+    
+    /**
+     * Crea un boton de navegacion lateral con efecto hover y accion asignada.
+     */
+    private JButton crearBtnNav(String texto, JPanel parent, Runnable accion) {
+        JButton btn = new JButton(texto);
+        btn.setFont(Estilo.FUENTE_NORMAL);
+        btn.setForeground(new Color(200, 220, 255));
+        btn.setBackground(new Color(40, 60, 90));
+        btn.setBorderPainted(false);
+        btn.setFocusPainted(false);
+        btn.setOpaque(true);
+        btn.setHorizontalAlignment(SwingConstants.LEFT);
+        btn.setMaximumSize(new Dimension(190, 40));
+        btn.setPreferredSize(new Dimension(190, 40));
+        btn.setBorder(BorderFactory.createEmptyBorder(0, 18, 0, 0));
+        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+ 
+        // hecho con ia
+        btn.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                if (btn != btnActivo) btn.setBackground(new Color(60, 85, 120));
+            }
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                if (btn != btnActivo) btn.setBackground(new Color(40, 60, 90));
+            }
+        });
+ 
+        btn.addActionListener(e -> {
+            marcarActivo(btn);
+            accion.run();
+        });
+ 
+        parent.add(btn);
+        return btn;
+    }
+    
     /**
      * @param args the command line arguments
      */
@@ -76,7 +211,29 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
     }
+    
+    /**
+     * Resalta el boton activo en la barra lateral.
+     */
+    private void marcarActivo(JButton btn) {
+        if (btnActivo != null) {
+            btnActivo.setBackground(new Color(40, 60, 90));
+            btnActivo.setForeground(new Color(200, 220, 255));
+        }
+        btnActivo = btn;
+        btn.setBackground(Estilo.AZUL_MEDIO);
+        btn.setForeground(Estilo.BLANCO);
+    }
 
+    /**
+     * Cambia el panel de contenido central por el nuevo panel indicado.
+     */
+    private void cambiar(JPanel contenedor, JPanel nuevo) {
+        contenedor.removeAll();
+        contenedor.add(nuevo, BorderLayout.CENTER);
+        contenedor.revalidate();
+        contenedor.repaint();
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
 }

@@ -3,13 +3,19 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
  */
 package es.equipo2.inventario.view;
+import es.equipo2.inventario.controller.BusquedaController;
+import java.awt.*;
+import java.util.List;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 
 /**
- *
+ *  Panel de busqueda y localizacion
  * @author DAW104
  */
 public class UsuariosPanel extends javax.swing.JPanel {
 
+    
     /**
      * Creates new form UsuariosPanel
      */
