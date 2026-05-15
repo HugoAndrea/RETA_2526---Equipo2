@@ -5,6 +5,7 @@
 package es.equipo2.inventario.view;
 
 import es.equipo2.inventario.controller.UsuarioController;
+import es.equipo2.inventario.util.Teclado;
 import java.awt.*;
 import javax.swing.*;
 
@@ -26,13 +27,10 @@ public class LoginFrame extends javax.swing.JFrame {
     public LoginFrame() {
         setTitle("Sistema de Inventario - Login");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(420,460);
-        setLocationRelativeTo(null);
         setResizable(false);
-        initComponents();
-        myInitComponents();
+        initComponents();      
+        myInitComponents();    
     }
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -48,11 +46,11 @@ public class LoginFrame extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGap(0, 789, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGap(0, 475, Short.MAX_VALUE)
         );
 
         pack();
@@ -60,13 +58,13 @@ public class LoginFrame extends javax.swing.JFrame {
 
     
     private void myInitComponents(){
-        JPanel raiz = new JPanel();
+        JPanel raiz = new JPanel(new BorderLayout());
         raiz.setBackground(Estilo.GRIS_FONDO);
         // Repetimos lo mismo para cada elemento del login frame
         
         // cabecera
         JPanel header = new JPanel();
-        header.setBackground(Estilo.AZUL_CLARO);
+        header.setBackground(Estilo.AZUL_OSCURO);
         header.setPreferredSize(new Dimension(420, 130));
         header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
         header.setBorder(BorderFactory.createEmptyBorder(24, 0, 20, 0));
@@ -141,6 +139,9 @@ public class LoginFrame extends javax.swing.JFrame {
         raiz.add(pie, BorderLayout.SOUTH);
         
         setContentPane(raiz);
+        
+        setSize(420, 460);
+        setLocationRelativeTo(null);
  
         btnEntrar.addActionListener(e -> intentarLogin());
         txtPassword.addActionListener(e -> intentarLogin());
@@ -175,6 +176,7 @@ public class LoginFrame extends javax.swing.JFrame {
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 new LoginFrame().setVisible(true);
             }
@@ -184,6 +186,23 @@ public class LoginFrame extends javax.swing.JFrame {
     private void intentarLogin(){
         String user = txtUsuario.getText().trim();
         String pass = new String(txtPassword.getPassword());
+        
+        if (user.isEmpty() || pass.isEmpty()) {
+            JOptionPane.showMessageDialog(this,"Introduce usuario y contrasena ", "Campos vacios ", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        if (!Teclado.nombreValido(user)) {
+            JOptionPane.showMessageDialog(this, "El nombre de usuario no es valido ", "Aviso ", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        if (controller.login(user, pass)) {
+            new MainFrame().setVisible(true);
+            dispose();
+        }else{
+            JOptionPane.showMessageDialog(this,"Usuario o contrasena incorrectos ","Error de acceso ", JOptionPane.ERROR_MESSAGE);
+            txtPassword.setText("");
+            txtUsuario.requestFocus();
+        }
     }
 
     
