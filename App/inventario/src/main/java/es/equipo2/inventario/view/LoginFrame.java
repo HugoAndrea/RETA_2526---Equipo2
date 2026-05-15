@@ -4,17 +4,33 @@
  */
 package es.equipo2.inventario.view;
 
+import es.equipo2.inventario.controller.UsuarioController;
+import java.awt.*;
+import javax.swing.*;
+
 /**
- *
+ * ventana de inicia de sesion con interfaz visual
  * @author DAW104
+ * He tenido poco tiempo para estudiar y profundizarme en java swing, por eso, esta clase esta hecha con ayuda de ia!!!
  */
 public class LoginFrame extends javax.swing.JFrame {
 
+    private UsuarioController controller = new UsuarioController();
+    private JTextField txtUsuario;
+    private JPasswordField txtPassword;
+    private JButton btnEntrar;
+    
     /**
      * Creates new form LoginFrame
      */
     public LoginFrame() {
+        setTitle("Sistema de Inventario - Login");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(420,460);
+        setLocationRelativeTo(null);
+        setResizable(false);
         initComponents();
+        myInitComponents();
     }
 
     /**
@@ -42,6 +58,94 @@ public class LoginFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    
+    private void myInitComponents(){
+        JPanel raiz = new JPanel();
+        raiz.setBackground(Estilo.GRIS_FONDO);
+        // Repetimos lo mismo para cada elemento del login frame
+        
+        // cabecera
+        JPanel header = new JPanel();
+        header.setBackground(Estilo.AZUL_CLARO);
+        header.setPreferredSize(new Dimension(420, 130));
+        header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
+        header.setBorder(BorderFactory.createEmptyBorder(24, 0, 20, 0));
+        
+        // icono
+        JLabel lblIcono = new JLabel("🔒", SwingConstants.CENTER);
+        lblIcono.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 38));
+        lblIcono.setForeground(Estilo.BLANCO);
+        lblIcono.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        // titulo
+        JLabel lblTitulo = new JLabel("Sistema de Inventario", SwingConstants.CENTER);
+        lblTitulo.setFont(Estilo.FUENTE_TITULO);
+        lblTitulo.setForeground(Estilo.BLANCO);
+        lblTitulo.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        // pie del frame
+        JLabel lblSub = new JLabel("IES Miguel Herrero Pereda", SwingConstants.CENTER);
+        lblSub.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        lblSub.setForeground(new Color(180, 200, 230));
+        lblSub.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        // añadimos los elementos al header
+        header.add(lblIcono);
+        // separamos los elementos con un "espacion" vertical de 6
+        header.add(Box.createVerticalStrut(6));
+        header.add(lblTitulo);
+        // separamos los elementos con un "espacion" vertical de 4
+        header.add(Box.createVerticalStrut(4));
+        header.add(lblSub);
+        
+        // formulario central
+        JPanel form = new JPanel(new GridBagLayout());
+        form.setBackground(Estilo.GRIS_FONDO);
+        form.setBorder(BorderFactory.createEmptyBorder(30, 40, 20, 40));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(6, 0, 6, 0);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+        
+        txtUsuario = Estilo.campo(20);
+        txtPassword = Estilo.campoPassword(20);
+        btnEntrar = Estilo.botonPrimario("  Entrar  ");
+        btnEntrar.setPreferredSize(new Dimension(0, 40));
+        
+        // estilos para campos de usuario y contraseña
+        gbc.gridx = 0; gbc.gridy = 0;
+        form.add(Estilo.label("Usuario"), gbc);
+        gbc.gridy = 1;
+        form.add(txtUsuario, gbc);
+        gbc.gridy = 2;
+        form.add(Box.createVerticalStrut(6), gbc);
+        gbc.gridy = 3;
+        form.add(Estilo.label("Contrasena"), gbc);
+        gbc.gridy = 4;
+        form.add(txtPassword, gbc);
+        gbc.gridy = 5;
+        form.add(Box.createVerticalStrut(10), gbc);
+        gbc.gridy = 6;
+        form.add(btnEntrar, gbc);
+        
+        JPanel pie = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        pie.setBackground(Estilo.GRIS_FONDO);
+        // el nombre se puede cambiar
+        JLabel lblPie = new JLabel("Equipo 2 · DAW1 · 2026");
+        lblPie.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+        lblPie.setForeground(Color.GRAY);
+        pie.add(lblPie);
+        
+        raiz.add(header, BorderLayout.NORTH);
+        raiz.add(form, BorderLayout.CENTER);
+        raiz.add(pie, BorderLayout.SOUTH);
+        
+        setContentPane(raiz);
+ 
+        btnEntrar.addActionListener(e -> intentarLogin());
+        txtPassword.addActionListener(e -> intentarLogin());
+        txtUsuario.addActionListener(e -> txtPassword.requestFocus());
+    }
     /**
      * @param args the command line arguments
      */
@@ -76,7 +180,13 @@ public class LoginFrame extends javax.swing.JFrame {
             }
         });
     }
+    
+    private void intentarLogin(){
+        String user = txtUsuario.getText().trim();
+        String pass = new String(txtPassword.getPassword());
+    }
 
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
 }
