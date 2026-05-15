@@ -1,19 +1,19 @@
-create database if not exists inventario;-- Creación de la base de datos si no existe ya,
-                                         -- así se evitan duplicaciones en el sistema
+create database if not exists inventario; /*Creación de la base de datos si no existe ya,
+                                           así se evitan duplicaciones en el sistema */
 use inventario;
 
 
 create table usuario(-- Personal que accede al sistema
-	idUsuario int primary key auto_increment not null,-- Autoincrement para que genere 
-                                                      -- IDs automáticamente cada vez que 
-                                                      -- se inserte una fila nueva
+	idUsuario int primary key auto_increment not null, /*Autoincrement para que genere 
+                                                      IDs automáticamente cada vez que 
+                                                      se inserte una fila nueva*/
     nombre varchar(50) not null,
     contrasenia varchar(25) not null,
     rol enum('administrador','profesor')
 );
 
-alter table usuario -- Aumenté los caracteres que puede tener las contraseñas para permitir 
-                    -- la encriptación de estas.
+alter table usuario /* Aumenté los caracteres que puede tener las contraseñas para permitir 
+                     la encriptación de estas.*/
 modify contrasenia varchar(255);
 
 
@@ -21,8 +21,8 @@ create table visitas(-- Control de accesos al sistema, permite saber quién ha a
 	numVisita int primary key auto_increment not null,
     fecha date not null,
     idUsuario int,
-    foreign key(idUsuario) references usuario(idUsuario)-- llave foranea que conecta esta 
-                                                        -- tabla con la de usuarios.
+    foreign key(idUsuario) references usuario(idUsuario)/* llave foranea que conecta esta 
+                                                         tabla con la de usuarios. */
 );
 
 
@@ -48,14 +48,14 @@ create table armario(-- Cada uno de los armarios del taller
 
 create table balda(-- Cada balda de los armarios
 	idBalda int primary key auto_increment not null,
-	numBalda int not null,-- redundante
+	numBalda int not null,
 	idArmario int,
 	foreign key(idArmario) references armario(idArmario),
-	CHECK (numBalda > 0 and numBalda < 25) -- no puede haber haber balda 0
-                                           -- ni balda 25 porque no existen
+	CHECK (numBalda > 0 and numBalda < 25) /* no puede haber haber balda 0
+                                            ni balda 25 porque no existen */
 );
 
-create table ubicacion(-- Ubicación del armario
+create table ubicacion(-- Ubicación de la balda
 	idUbicacion int primary key auto_increment not null,
 	posicion varchar(25) not null,
 	idBalda int,
@@ -105,66 +105,74 @@ create table movimiento(-- movimientos de los objetos de los armarios
 	idObjetoInventario int,
 	foreign key(idObjetoInventario) references objetoInventario(idObjetoInventario),
 	foreign key(idUsuario) references usuario(idUsuario),
-	CHECK (cantidad > 0)
+	check (cantidad > 0)
 );
 
 -- TRIGGERS
 
 -- 1 Cuando se crea un objeto, se registra automáticamente su estado inicial como 'Disponible' (ID 1).
-DELIMITER $$-- Este comando sirve para cambiar el caracter que separa las sentencias,
-             -- en este caso cambio el ; por $$.alter
-             -- esto lo hago para definir un bloque de código que contiene varios ; dentro,
-             -- de esta manera se ejecutará como debe.
-CREATE TRIGGER tr_objeto_inventario_alta
-AFTER INSERT ON objetoInventario
-FOR EACH ROW
-BEGIN
-    INSERT INTO historialEstado (fecha, idObjetoInventario, idEstado, idUsuario)
-    VALUES (NEW.fechaAlta, NEW.idObjetoInventario, 1, NULL);
-END$$
 
-DELIMITER ;
+delimiter $$ /* Este comando sirve para cambiar el caracter que separa las sentencias,
+              en este caso cambio el ; por $$,
+              esto lo hago para definir un bloque de código que contiene varios ; dentro,
+              de esta manera se ejecutará como debe.*/
+              
+create trigger tr_objeto_inventario_alta -- Nombre del trigger
+after insert on objetoInventario -- El trigger se ejecutará al insertar un objeto en la tabla objetoInventario
+for each row -- El código se ejecutará individualmente para cada fila insertada.
+begin -- Aquí empiezan las instrucciones que se van a aplicar cuando salte el trigger.
+    insert into historialEstado (fecha, idObjetoInventario, idEstado, idUsuario)
+    values (new.fechaAlta, new.idObjetoInventario, 1, null);
+end$$ -- Aquí acaba el bloque de código del trigger
+
+delimiter ; /*Vuelvo a cambiar el caracter para cerrar sentencias al que está por defecto,
+             podría hacer esto después de todos los triggers, pero prefiero encapsular 
+             cada uno para evitar posibles errores.*/
 
 -- 2 Incrementa o decrementa la columna 'cantidad' de la tabla 'objetoInventario' según el tipo de movimiento insertado.
 
-DELIMITER $$ 
+delimiter $$ 
 
 create trigger tr_actualizar_cantidad_inventario
 after insert on movimiento
 for each row
 begin
-    if new.tipo in ('entrada', 'devolucion') then
-        update objetoInventario
-        set cantidad = cantidad + new.cantidad
-        where idObjetoInventario = new.idObjetoInventario;
-    elseif new.tipo in ('salida', 'prestamo') then
+    if new.tipo in ('entrada', 'devolucion') then /* Si el movimiento es uno de estos dos
+													 que son los que incrementan el inventario*/  
+        update objetoInventario -- Selecciona esta tabla para modificarla
+        set cantidad = cantidad + new.cantidad /* Suma la cantidad del movimiento a la cantidad
+											      actual de objetos en el inventario*/
+        where idObjetoInventario = new.idObjetoInventario;/* Filtra la actualización exclusivamente para 
+                                                             el artículo que generó el movimiento.*/
+    elseif new.tipo in ('salida', 'prestamo') then /*Por otra parte, si el movimiento sustrae objetos
+                                                     se realizará la operación inversa*/
         update objetoInventario
         set cantidad = cantidad - new.cantidad
         where idObjetoInventario = new.idObjetoInventario;
     end if;
 end$$
 
-DELIMITER ;
+delimiter ;
 
 
--- Vincula directamente movimientos con la tabla de historial de estados.
+-- 3 Vincula directamente movimientos con la tabla de historial de estados.
 
-DELIMITER $$
+delimiter $$
 
 create trigger tr_actualizar_estado_por_movimiento
 after insert on movimiento
 for each row
 begin
-    -- Si es un préstamo, cambia el estado a 'Prestado' (idEstado = 2)
-    if new.tipo = 'prestamo' then
+    
+    if new.tipo = 'prestamo' then -- Si es un préstamo, cambia el estado a 'Prestado' (idEstado = 2)
         insert into historialEstado (fecha, idObjetoInventario, idEstado, idUsuario)
         values (new.fecha, new.idObjetoInventario, 2, new.idUsuario);
         
-    -- Si es una devolución, cambia el estado a 'Disponible' (idEstado = 1)
-    elseif new.tipo = 'devolucion' then
+    
+    elseif new.tipo = 'devolucion' then -- Si es una devolución, cambia el estado a 'Disponible' (idEstado = 1)
         insert into historialEstado (fecha, idObjetoInventario, idEstado, idUsuario)
         values (new.fecha, new.idObjetoInventario, 1, new.idUsuario);
     end if;
 end$$
 
-DELIMITER ;
+delimiter ;

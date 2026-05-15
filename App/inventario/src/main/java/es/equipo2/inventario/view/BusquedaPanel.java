@@ -4,17 +4,31 @@
  */
 package es.equipo2.inventario.view;
 
+import es.equipo2.inventario.controller.BusquedaController;
+import es.equipo2.inventario.model.Objeto;
+import java.awt.*;
+import java.util.List;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+
 /**
- *
+ * Panel de busqueda
  * @author DAW104
  */
 public class BusquedaPanel extends javax.swing.JPanel {
 
+    private BusquedaController controller = new BusquedaController();
+    private JTextField txtNombre, txtCodigo, txtCategoria, txtEstado;
+    private JTable tabla;
+    private DefaultTableModel modeloTable;
+    private JLabel lblResultados;
+    
     /**
      * Creates new form BusquedaPanel
      */
     public BusquedaPanel() {
         initComponents();
+        myInitComponents();
     }
 
     /**
@@ -38,6 +52,13 @@ public class BusquedaPanel extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void myInitComponents(){
+        setLayout(new BorderLayout(0, 0));
+        setBackground(Estilo.GRIS_FONDO);
+        
+        JPanel norte = new JPanel(new BorderLayout());
+        norte.add(Estilo.barraHeader("🔍  Busqueda y Localizacion"), BorderLayout.NORTH);
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables

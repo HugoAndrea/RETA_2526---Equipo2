@@ -56,7 +56,9 @@ public class LoginFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    
+    /**
+     * 
+     */
     private void myInitComponents(){
         JPanel raiz = new JPanel(new BorderLayout());
         raiz.setBackground(Estilo.GRIS_FONDO);
@@ -118,7 +120,7 @@ public class LoginFrame extends javax.swing.JFrame {
         gbc.gridy = 2;
         form.add(Box.createVerticalStrut(6), gbc);
         gbc.gridy = 3;
-        form.add(Estilo.label("Contrasena"), gbc);
+        form.add(Estilo.label("Contraseña"), gbc);
         gbc.gridy = 4;
         form.add(txtPassword, gbc);
         gbc.gridy = 5;
