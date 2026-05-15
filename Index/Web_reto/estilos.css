@@ -9,6 +9,7 @@ body {
     font-family: Arial, Helvetica, sans-serif;
     line-height: 1.6;
     color: #ffffff;
+    background-color: #ffffff;
 }
 
 /* Header con imagen de fondo, degradado y sombra */
@@ -37,8 +38,8 @@ header p {
 
 /* Navegación horizontal con hover y transición */
 nav {
-    background-color: #119b0c;
-    box-shadow: 0 2px 5px #55db88;
+    background-color: #0f172a;
+    box-shadow: 0 2px 5px #3b82f6;
     .Inicio {
         width: 100px;
         height: 75px;
@@ -70,30 +71,30 @@ nav li {
 
 nav a {
     display: block;
-    color: rgb(255, 255, 255);
+    color: #f97316;
     text-decoration: none;
     padding: 25px 25px;
     transition: background-color 0.3s ease;
 }
 
 nav a:hover {
-    background-color: #55db88;
+    background-color: #3b82f6;
 }
 
 /* Contenedor principal con Flexbox - main 75% y aside 25% */
 .contenedor-principal {
     display: flex;
     max-width: 1200px;
-    margin: 20px auto;
-    gap: 20px;
+    margin: 10px auto;
+    gap: 10px;
     padding: 0 20px;
 }
 
 main {
     flex: 3;
-    background-color: #119b0c;
+    background-color: #3b82f6;
     padding: 20px;
-    border-radius: 8px;
+    border-radius: 10px;
 }
 
 main h2 {
@@ -104,7 +105,7 @@ main h2 {
 main h3 {
     color: #000000;
     margin-top: 20px;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
 }
 
 main p {
@@ -113,18 +114,19 @@ main p {
 }
 
 article {
-    background-color: #eed183d5;
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px #119b0c;
+    background-color: #3b82f6;
+    padding: 15px;
+    border-radius: 2px;
+    box-shadow: 0 0px 0px #0f172a;
 }
 
 /* Aside con imagen que gira al hover */
 aside {
     flex: 1;
-    background-color: #119b0c;
+    background-color: #3b82f6;
     padding: 20px;
-    border-radius: 8px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px #0f172a;
 }
 
 aside h3 {
@@ -315,7 +317,7 @@ aside p {
 .campo-formulario label {
     display: block;
     margin-bottom: 5px;
-    color: #e61d1d;
+    color: #000000;
     font-weight: bold;
 }
 
@@ -354,12 +356,12 @@ aside p {
 }
 
 .campo-formulario button[type="submit"] {
-    background-color: #2f2fa0;
+    background-color: #ffffff;
     color: rgb(33, 14, 138);
 }
 
 .campo-formulario button[type="submit"]:hover {
-    background-color: #16213e;
+    background-color: #0f172a;
 }
 
 .campo-formulario button[type="reset"] {
