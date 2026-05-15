@@ -129,20 +129,20 @@ DELIMITER ;
 
 DELIMITER $$ 
 
-CREATE TRIGGER tr_actualizar_cantidad_inventario
-AFTER INSERT ON movimiento
-FOR EACH ROW
-BEGIN
-    IF NEW.tipo IN ('entrada', 'devolucion') THEN
-        UPDATE objetoInventario
-        SET cantidad = cantidad + NEW.cantidad
-        WHERE idObjetoInventario = NEW.idObjetoInventario;
-    ELSEIF NEW.tipo IN ('salida', 'prestamo') THEN
-        UPDATE objetoInventario
-        SET cantidad = cantidad - NEW.cantidad
-        WHERE idObjetoInventario = NEW.idObjetoInventario;
-    END IF;
-END$$
+create trigger tr_actualizar_cantidad_inventario
+after insert on movimiento
+for each row
+begin
+    if new.tipo in ('entrada', 'devolucion') then
+        update objetoInventario
+        set cantidad = cantidad + new.cantidad
+        where idObjetoInventario = new.idObjetoInventario;
+    elseif new.tipo in ('salida', 'prestamo') then
+        update objetoInventario
+        set cantidad = cantidad - new.cantidad
+        where idObjetoInventario = new.idObjetoInventario;
+    end if;
+end$$
 
 DELIMITER ;
 
@@ -151,20 +151,20 @@ DELIMITER ;
 
 DELIMITER $$
 
-CREATE TRIGGER tr_actualizar_estado_por_movimiento
-AFTER INSERT ON movimiento
-FOR EACH ROW
-BEGIN
+create trigger tr_actualizar_estado_por_movimiento
+after insert on movimiento
+for each row
+begin
     -- Si es un préstamo, cambia el estado a 'Prestado' (idEstado = 2)
-    IF NEW.tipo = 'prestamo' THEN
-        INSERT INTO historialEstado (fecha, idObjetoInventario, idEstado, idUsuario)
-        VALUES (NEW.fecha, NEW.idObjetoInventario, 2, NEW.idUsuario);
+    if new.tipo = 'prestamo' then
+        insert into historialEstado (fecha, idObjetoInventario, idEstado, idUsuario)
+        values (new.fecha, new.idObjetoInventario, 2, new.idUsuario);
         
     -- Si es una devolución, cambia el estado a 'Disponible' (idEstado = 1)
-    ELSEIF NEW.tipo = 'devolucion' THEN
-        INSERT INTO historialEstado (fecha, idObjetoInventario, idEstado, idUsuario)
-        VALUES (NEW.fecha, NEW.idObjetoInventario, 1, NEW.idUsuario);
-    END IF;
-END$$
+    elseif new.tipo = 'devolucion' then
+        insert into historialEstado (fecha, idObjetoInventario, idEstado, idUsuario)
+        values (new.fecha, new.idObjetoInventario, 1, new.idUsuario);
+    end if;
+end$$
 
 DELIMITER ;
