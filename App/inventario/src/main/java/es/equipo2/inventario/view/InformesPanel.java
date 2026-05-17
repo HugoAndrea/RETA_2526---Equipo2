@@ -4,17 +4,39 @@
  */
 package es.equipo2.inventario.view;
 
+import es.equipo2.inventario.controller.InformesController;
+import es.equipo2.inventario.model.Movimiento;
+import es.equipo2.inventario.model.Objeto;
+import es.equipo2.inventario.util.HiloExportacion;
+import java.awt.*;
+import java.util.List;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+
 /**
- *
+ * Panel de generacion de informes (todos los usuarios)
+ * Listado completo, por categoria, por estado, por armario/balda y movimientos
+ * initComponents() generado por NetBeans no tocar
+ * myInitComponents() contiene todo el diseno y la logica
  * @author DAW104
  */
 public class InformesPanel extends javax.swing.JPanel {
+
+    private InformesController controller = new InformesController();
+    private JComboBox<String> cmbTipo;
+    private JTextField txtFiltro;
+    private JLabel lblFiltro, lblResultados;
+    private JButton btnGenerar, btnExportarCSV, btnExportarExcel, btnExportarPDF;
+    private JTable tabla;
+    private DefaultTableModel modeloTabla;
+    private List<Objeto> datosActuales;
 
     /**
      * Creates new form InformesPanel
      */
     public InformesPanel() {
         initComponents();
+        myInitComponents();
     }
 
     /**
@@ -37,6 +59,220 @@ public class InformesPanel extends javax.swing.JPanel {
             .addGap(0, 300, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void myInitComponents() {
+        setLayout(new BorderLayout(0, 0));
+        setBackground(Estilo.GRIS_FONDO);
+
+        // --- Cabecera + configuracion en NORTH ---
+        JPanel norte = new JPanel(new BorderLayout());
+        norte.add(Estilo.barraHeader("📋  Generacion de Informes"), BorderLayout.NORTH);
+
+        JPanel config = new JPanel(new GridBagLayout());
+        config.setBackground(Estilo.BLANCO);
+        config.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 0, 1, 0, Estilo.GRIS_LINEA),
+                BorderFactory.createEmptyBorder(14, 16, 14, 16)
+        ));
+
+        GridBagConstraints g = new GridBagConstraints();
+        g.insets = new Insets(5, 6, 5, 6);
+        g.fill = GridBagConstraints.HORIZONTAL;
+
+        cmbTipo = new JComboBox<>(new String[]{
+            "Inventario completo",
+            "Por categoria",
+            "Por estado",
+            "Por armario/balda",
+            "Movimientos"
+        });
+        cmbTipo.setFont(Estilo.FUENTE_NORMAL);
+
+        lblFiltro = Estilo.label("Filtro:");
+        txtFiltro = Estilo.campo(16);
+        txtFiltro.setEnabled(false);
+
+        btnGenerar = Estilo.botonPrimario("▶  Generar");
+        btnExportarCSV = Estilo.boton("CSV", new Color(80, 130, 80));
+        btnExportarExcel = Estilo.boton("Excel", new Color(30, 120, 60));
+        btnExportarPDF = Estilo.boton("PDF", new Color(160, 40, 40));
+
+        // Fila 1: selector tipo + filtro + boton generar
+        g.gridy = 0;
+        g.weightx = 0;
+        g.gridx = 0;
+        config.add(Estilo.label("Tipo de informe:"), g);
+        g.gridx = 1;
+        g.weightx = 1;
+        config.add(cmbTipo, g);
+        g.gridx = 2;
+        g.weightx = 0;
+        config.add(lblFiltro, g);
+        g.gridx = 3;
+        g.weightx = 1;
+        config.add(txtFiltro, g);
+        g.gridx = 4;
+        g.weightx = 0;
+        config.add(btnGenerar, g);
+
+        // Fila 2: botones de exportacion
+        JPanel pExport = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
+        pExport.setBackground(Estilo.BLANCO);
+        pExport.add(Estilo.label("Exportar:"));
+        pExport.add(btnExportarCSV);
+        pExport.add(btnExportarExcel);
+        pExport.add(btnExportarPDF);
+
+        g.gridy = 1;
+        g.gridx = 3;
+        g.gridwidth = 2;
+        config.add(pExport, g);
+        g.gridwidth = 1;
+
+        norte.add(config, BorderLayout.SOUTH);
+
+        // --- Tabla en CENTER ---
+        modeloTabla = new DefaultTableModel(
+                new String[]{"ID", "Nombre", "Cant.", "Categoria", "Ubicacion", "Estado"}, 0) {
+            @Override
+            public boolean isCellEditable(int r, int c) {
+                return false;
+            }
+        };
+        tabla = new JTable(modeloTabla);
+        Estilo.estilizarTabla(tabla);
+
+        JScrollPane scroll = new JScrollPane(tabla);
+        scroll.setBorder(BorderFactory.createEmptyBorder(10, 12, 10, 12));
+
+        // --- Pie en SOUTH ---
+        JPanel pie = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 6));
+        pie.setBackground(Estilo.BLANCO);
+        pie.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Estilo.GRIS_LINEA));
+        lblResultados = new JLabel("Selecciona un tipo de informe y pulsa Generar");
+        lblResultados.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        lblResultados.setForeground(Color.GRAY);
+        pie.add(lblResultados);
+
+        add(norte, BorderLayout.NORTH);
+        add(scroll, BorderLayout.CENTER);
+        add(pie, BorderLayout.SOUTH);
+
+        // Listeners
+        cmbTipo.addActionListener(e -> actualizarFiltro());
+        btnGenerar.addActionListener(e -> generarInforme());
+        btnExportarCSV.addActionListener(e -> exportar("csv"));
+        btnExportarExcel.addActionListener(e -> exportar("excel"));
+        btnExportarPDF.addActionListener(e -> exportar("pdf"));
+    }
+
+    private void actualizarFiltro() {
+        String sel = (String) cmbTipo.getSelectedItem();
+        switch (sel) {
+            case "Por categoria":
+                lblFiltro.setText("Categoria:");
+                txtFiltro.setToolTipText("Nombre de la categoria");
+                txtFiltro.setEnabled(true);
+                break;
+            case "Por estado":
+                lblFiltro.setText("Estado:");
+                txtFiltro.setToolTipText("Nombre del estado");
+                txtFiltro.setEnabled(true);
+                break;
+            case "Por armario/balda":
+                lblFiltro.setText("Armario,Balda:");
+                txtFiltro.setToolTipText("Formato: idArmario,numBalda  (ej: 1,2)");
+                txtFiltro.setEnabled(true);
+                break;
+            default:
+                lblFiltro.setText("Filtro:");
+                txtFiltro.setText("");
+                txtFiltro.setEnabled(false);
+                break;
+        }
+    }
+
+    private void generarInforme() {
+        modeloTabla.setRowCount(0);
+        datosActuales = null;
+        String sel = (String) cmbTipo.getSelectedItem();
+        String filtro = txtFiltro.getText().trim();
+
+        switch (sel) {
+            case "Inventario completo":
+                datosActuales = controller.informeCompleto();
+                poblarObjetos(datosActuales);
+                break;
+            case "Por categoria":
+                datosActuales = controller.informePorCat(filtro);
+                poblarObjetos(datosActuales);
+                break;
+            case "Por estado":
+                datosActuales = controller.informePorEstado(filtro);
+                poblarObjetos(datosActuales);
+                break;
+            case "Por armario/balda":
+                try {
+                    String[] p = filtro.split(",");
+                    datosActuales = controller.informeArmarioBalda(
+                            Integer.parseInt(p[0].trim()), Integer.parseInt(p[1].trim()));
+                    poblarObjetos(datosActuales);
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this,
+                            "Formato: idArmario,numBalda  (ejemplo: 1,2)",
+                            "Formato incorrecto", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                break;
+            case "Movimientos":
+                poblarMovimientos(controller.informeMovmiento());
+                break;
+        }
+        lblResultados.setText("Informe generado: " + modeloTabla.getRowCount()
+                + " registros  |  " + sel);
+    }
+
+    private void poblarObjetos(List<Objeto> lista) {
+        modeloTabla.setColumnIdentifiers(
+                new String[]{"ID", "Nombre", "Cant.", "Categoria", "Ubicacion", "Estado"});
+        for (Objeto o : lista) {
+            modeloTabla.addRow(new Object[]{
+                o.getIdObjeto(), o.getNombre(), o.getCantidad(),
+                o.getNombreCategoria(), o.getPosicionUbicacion(), o.getEstadoActual()
+            });
+        }
+    }
+
+    private void poblarMovimientos(List<Movimiento> lista) {
+        modeloTabla.setColumnIdentifiers(
+                new String[]{"ID", "Tipo", "Cantidad", "Fecha", "Objeto", "Usuario"});
+        for (Movimiento m : lista) {
+            modeloTabla.addRow(new Object[]{
+                m.getIdMovimiento(), m.getTipo(), m.getCantidad(),
+                m.getFecha(), m.getNombreObj(), m.getNombreUs()
+            });
+        }
+    }
+
+    private void exportar(String formato) {
+        if (datosActuales == null || datosActuales.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "Primero genera un informe de objetos antes de exportar.",
+                    "Sin datos", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        JFileChooser fc = new JFileChooser();
+        fc.setDialogTitle("Guardar informe como " + formato.toUpperCase());
+        if (fc.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+            String ruta = fc.getSelectedFile().getAbsolutePath();
+            String ext = formato.equals("excel") ? ".xlsx" : "." + formato;
+            if (!ruta.toLowerCase().endsWith(ext)) {
+                ruta += ext;
+            }
+            new HiloExportacion(formato, ruta, datosActuales).start();
+            JOptionPane.showMessageDialog(this, "Exportacion iniciada en segundo plano.");
+        }
+    }
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

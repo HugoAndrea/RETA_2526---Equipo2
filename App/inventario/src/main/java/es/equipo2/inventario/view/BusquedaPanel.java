@@ -13,22 +13,55 @@ import javax.swing.table.DefaultTableModel;
 
 /**
  * Panel de busqueda
+ *
  * @author DAW104
  */
 public class BusquedaPanel extends javax.swing.JPanel {
 
     private BusquedaController controller = new BusquedaController();
     private JTextField txtNombre, txtCodigo, txtCategoria, txtEstado;
+    private JButton btnBuscar, btnLimpiar, btnLocalizar;
     private JTable tabla;
-    private DefaultTableModel modeloTable;
+    private DefaultTableModel modeloTabla;
     private JLabel lblResultados;
-    
+
     /**
      * Creates new form BusquedaPanel
      */
     public BusquedaPanel() {
         initComponents();
         myInitComponents();
+    }
+
+    /**
+     * Busca tabla que lleva datos pasados
+     */
+    private void buscar() {
+        modeloTabla.setRowCount(0);
+        List<Objeto> resultados = controller.buscar(
+                txtNombre.getText(), txtCodigo.getText(),
+                txtCategoria.getText(), txtEstado.getText());
+
+        for (Objeto o : resultados) {
+            modeloTabla.addRow(new Object[]{
+                o.getIdObjeto(), o.getNombre(), o.getDescripcion(),
+                o.getCantidad(), o.getNombreCategoria(),
+                o.getPosicionUbicacion(), o.getEstadoActual()
+            });
+        }
+        lblResultados.setText(resultados.size() + " resultado(s) encontrado(s)");
+    }
+
+    /**
+     * limpia todos los campos en los que se puede poner texto
+     */
+    private void limpiar() {
+        txtNombre.setText("");
+        txtCodigo.setText("");
+        txtCategoria.setText("");
+        txtEstado.setText("");
+        modeloTabla.setRowCount(0);
+        lblResultados.setText("Introduce criterios y pulsa Buscar");
     }
 
     /**
@@ -52,12 +85,117 @@ public class BusquedaPanel extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void myInitComponents(){
+    private void myInitComponents() {
         setLayout(new BorderLayout(0, 0));
         setBackground(Estilo.GRIS_FONDO);
-        
+
+        // --- Cabecera + filtros en el NORTH ---
         JPanel norte = new JPanel(new BorderLayout());
         norte.add(Estilo.barraHeader("🔍  Busqueda y Localizacion"), BorderLayout.NORTH);
+
+        JPanel filtros = new JPanel(new GridBagLayout());
+        filtros.setBackground(Estilo.BLANCO);
+        filtros.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 0, 1, 0, Estilo.GRIS_LINEA),
+                BorderFactory.createEmptyBorder(14, 16, 14, 16)
+        ));
+
+        GridBagConstraints g = new GridBagConstraints();
+        g.insets = new Insets(4, 6, 4, 6);
+        g.fill = GridBagConstraints.HORIZONTAL;
+
+        txtNombre = Estilo.campo(16);
+        txtCodigo = Estilo.campo(8);
+        txtCategoria = Estilo.campo(14);
+        txtEstado = Estilo.campo(14);
+        btnBuscar = Estilo.botonPrimario("🔍  Buscar");
+        btnLimpiar = Estilo.botonAdvertencia("✕  Limpiar");
+        btnLocalizar = Estilo.boton("🌐  Ver en mapa web", new Color(50, 120, 80));
+
+        // Fila etiquetas
+        g.gridy = 0;
+        g.weightx = 0;
+        g.gridx = 0;
+        filtros.add(Estilo.label("Nombre"), g);
+        g.gridx = 1;
+        filtros.add(Estilo.label("Codigo"), g);
+        g.gridx = 2;
+        filtros.add(Estilo.label("Categoria"), g);
+        g.gridx = 3;
+        filtros.add(Estilo.label("Estado"), g);
+
+        // Fila campos
+        g.gridy = 1;
+        g.weightx = 1;
+        g.gridx = 0;
+        filtros.add(txtNombre, g);
+        g.gridx = 1;
+        filtros.add(txtCodigo, g);
+        g.gridx = 2;
+        filtros.add(txtCategoria, g);
+        g.gridx = 3;
+        filtros.add(txtEstado, g);
+
+        // Fila botones
+        g.gridy = 2;
+        g.weightx = 0;
+        g.gridx = 0;
+        filtros.add(btnBuscar, g);
+        g.gridx = 1;
+        filtros.add(btnLimpiar, g);
+        g.gridx = 3;
+        filtros.add(btnLocalizar, g);
+
+        norte.add(filtros, BorderLayout.SOUTH);
+
+        // --- Tabla en el CENTER ---
+        modeloTabla = new DefaultTableModel(
+                new String[]{"ID", "Nombre", "Descripcion", "Cant.",
+                    "Categoria", "Ubicacion (Armario - Balda - Posicion)", "Estado"}, 0) {
+            @Override
+            public boolean isCellEditable(int r, int c) {
+                return false;
+            }
+        };
+        tabla = new JTable(modeloTabla);
+        Estilo.estilizarTabla(tabla);
+
+        tabla.getColumnModel().getColumn(0).setPreferredWidth(40);
+        tabla.getColumnModel().getColumn(1).setPreferredWidth(160);
+        tabla.getColumnModel().getColumn(2).setPreferredWidth(180);
+        tabla.getColumnModel().getColumn(3).setPreferredWidth(50);
+        tabla.getColumnModel().getColumn(4).setPreferredWidth(110);
+        tabla.getColumnModel().getColumn(5).setPreferredWidth(220);
+        tabla.getColumnModel().getColumn(6).setPreferredWidth(100);
+
+        JScrollPane scroll = new JScrollPane(tabla);
+        scroll.setBorder(BorderFactory.createEmptyBorder(10, 12, 10, 12));
+
+        // --- Pie en el SOUTH ---
+        JPanel pie = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 6));
+        pie.setBackground(Estilo.BLANCO);
+        pie.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Estilo.GRIS_LINEA));
+        lblResultados = new JLabel("Introduce criterios y pulsa Buscar");
+        lblResultados.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        lblResultados.setForeground(Color.GRAY);
+        pie.add(lblResultados);
+
+        add(norte, BorderLayout.NORTH);
+        add(scroll, BorderLayout.CENTER);
+        add(pie, BorderLayout.SOUTH);
+
+        // Listeners
+        btnBuscar.addActionListener(e -> buscar());
+        btnLimpiar.addActionListener(e -> limpiar());
+        txtNombre.addActionListener(e -> buscar());
+        txtCodigo.addActionListener(e -> buscar());
+        btnLocalizar.addActionListener(e -> {
+            if (!controller.abrirLocalizacion()) {
+                JOptionPane.showMessageDialog(this,
+                        "No se pudo abrir el navegador.\nComprueba que la URL esta configurada.",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
