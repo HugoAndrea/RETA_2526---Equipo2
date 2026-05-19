@@ -211,71 +211,110 @@ public class InventarioPanel extends javax.swing.JPanel {
      * un mensaje de warning
      */
     private void mostrarDialogoAlta() {
-        List<Categoria> cats = new CategoriaDAO().listar();
-        List<Ubicacion> ubis = new UbicacionDAO().listarTodas();
-
-        if (cats.isEmpty() || ubis.isEmpty()) {
+        if (!uc.esAdmin()) {
             JOptionPane.showMessageDialog(this,
-                    "No hay categorias o ubicaciones en la BD.", "Sin datos",
-                    JOptionPane.WARNING_MESSAGE);
+                "Accion no permitida: solo los administradores pueden dar de alta objetos.",
+                "Acceso denegado", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        JTextField txtNombre = Estilo.campo(22);
-        JTextField txtDesc = Estilo.campo(22);
+        List<Categoria> cats = new CategoriaDAO().listar();
+        List<Ubicacion> ubis = new UbicacionDAO().listarTodas();
+
+        // campos siempre presentes
+        JTextField txtNombre   = Estilo.campo(22);
+        JTextField txtDesc     = Estilo.campo(22);
         JTextField txtCantidad = Estilo.campo(6);
         txtCantidad.setText("1");
         JTextField txtObs = Estilo.campo(22);
-        JComboBox<Categoria> cmbCat = new JComboBox<>(cats.toArray(new Categoria[0]));
-        JComboBox<Ubicacion> cmbUbi = new JComboBox<>(ubis.toArray(new Ubicacion[0]));
 
         JPanel form = new JPanel(new GridBagLayout());
         form.setBackground(Estilo.GRIS_FONDO);
         form.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         GridBagConstraints g = new GridBagConstraints();
         g.insets = new Insets(5, 5, 5, 5);
-        g.fill = GridBagConstraints.HORIZONTAL;
+        g.fill   = GridBagConstraints.HORIZONTAL;
 
-        String[] lbls = {"Nombre *", "Descripcion", "Cantidad *", "Observaciones", "Categoria *", "Ubicacion *"};
-        Component[] cmps = {txtNombre, txtDesc, txtCantidad, txtObs, cmbCat, cmbUbi};
-        for (int i = 0; i < lbls.length; i++) {
-            g.gridx = 0;
-            g.gridy = i;
-            g.weightx = 0;
-            form.add(Estilo.label(lbls[i]), g);
-            g.gridx = 1;
-            g.weightx = 1;
-            form.add(cmps[i], g);
+        // fila helper
+        int fila = 0;
+        // Nombre
+        g.gridx = 0; g.gridy = fila; g.weightx = 0; form.add(Estilo.label("Nombre *"), g);
+        g.gridx = 1;                 g.weightx = 1; form.add(txtNombre, g);   fila++;
+        // Descripcion
+        g.gridx = 0; g.gridy = fila; g.weightx = 0; form.add(Estilo.label("Descripcion"), g);
+        g.gridx = 1;                 g.weightx = 1; form.add(txtDesc, g);     fila++;
+        // Cantidad
+        g.gridx = 0; g.gridy = fila; g.weightx = 0; form.add(Estilo.label("Cantidad *"), g);
+        g.gridx = 1;                 g.weightx = 1; form.add(txtCantidad, g); fila++;
+        // Observaciones
+        g.gridx = 0; g.gridy = fila; g.weightx = 0; form.add(Estilo.label("Observaciones"), g);
+        g.gridx = 1;                 g.weightx = 1; form.add(txtObs, g);      fila++;
+
+        // categoria: combo si hay datos, texto libre si no
+        JComboBox<Categoria> cmbCat = null;
+        JTextField txtCatLibre      = null;
+        if (!cats.isEmpty()) {
+            cmbCat = new JComboBox<>(cats.toArray(new Categoria[0]));
+            g.gridx = 0; g.gridy = fila; g.weightx = 0; form.add(Estilo.label("Categoria"), g);
+            g.gridx = 1;                 g.weightx = 1; form.add(cmbCat, g);
+        } else {
+            txtCatLibre = Estilo.campo(22);
+            JLabel aviso = new JLabel("<html><i style='color:gray'>Sin categorias en BD — se asignara sin categoria</i></html>");
+            aviso.setFont(aviso.getFont().deriveFont(10f));
+            g.gridx = 0; g.gridy = fila; g.weightx = 0; form.add(Estilo.label("Categoria"), g);
+            g.gridx = 1;                 g.weightx = 1; form.add(aviso, g);
+        }
+        fila++;
+
+        // ubicacion: combo si hay datos, aviso si no
+        JComboBox<Ubicacion> cmbUbi = null;
+        if (!ubis.isEmpty()) {
+            cmbUbi = new JComboBox<>(ubis.toArray(new Ubicacion[0]));
+            g.gridx = 0; g.gridy = fila; g.weightx = 0; form.add(Estilo.label("Ubicacion"), g);
+            g.gridx = 1;                 g.weightx = 1; form.add(cmbUbi, g);
+        } else {
+            JLabel aviso = new JLabel("<html><i style='color:gray'>Sin ubicaciones en BD — se asignara sin ubicacion</i></html>");
+            aviso.setFont(aviso.getFont().deriveFont(10f));
+            g.gridx = 0; g.gridy = fila; g.weightx = 0; form.add(Estilo.label("Ubicacion"), g);
+            g.gridx = 1;                 g.weightx = 1; form.add(aviso, g);
         }
 
+        // mostrar dialogo
         int res = JOptionPane.showConfirmDialog(this, form,
                 "Alta de objeto", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-        if (res != JOptionPane.OK_OPTION) {
-            return;
-        }
+        if (res != JOptionPane.OK_OPTION) return;
 
+        // validar nombre
         String nombre = txtNombre.getText().trim();
-        if (!Teclado.textoValido(nombre, 50)) {
-            JOptionPane.showMessageDialog(this, "Nombre no valido (maximo 50 caracteres)");
+        if (!Teclado.textoValido(nombre, 30)) {
+            JOptionPane.showMessageDialog(this, "Nombre no valido (maximo 30 caracteres y no puede estar vacio)");
             return;
         }
 
+        // parsear cantidad
         int cantidad = 1;
         try {
             cantidad = Integer.parseInt(txtCantidad.getText().trim());
         } catch (NumberFormatException ex) {
-            Teclado.error("Formato de número incorrecto");
-            Teclado.error(ex.getMessage());
+            Teclado.error("Cantidad no numerica, se usara 1");
         }
 
+        // construir objeto
         Objeto o = new Objeto();
         o.setNombre(nombre);
         o.setDescripcion(txtDesc.getText().trim());
         o.setCantidad(cantidad);
         o.setObservaciones(txtObs.getText().trim());
-        o.setIdCategoria(((Categoria) cmbCat.getSelectedItem()).getId());
-        o.setIdUbicacion(((Ubicacion) cmbUbi.getSelectedItem()).getIdUbicacion());
+        // Categoria: si habia combo usamos el seleccionado; si no, idCategoria queda a 0 (null en BD)
+        if (cmbCat != null && cmbCat.getSelectedItem() != null) {
+            o.setIdCategoria(((Categoria) cmbCat.getSelectedItem()).getId());
+        }
+        // Ubicacion: idem
+        if (cmbUbi != null && cmbUbi.getSelectedItem() != null) {
+            o.setIdUbicacion(((Ubicacion) cmbUbi.getSelectedItem()).getIdUbicacion());
+        }
 
+        // persistir
         if (controller.altaObjeto(o)) {
             JOptionPane.showMessageDialog(this, "Objeto dado de alta correctamente");
             cargarDatos();

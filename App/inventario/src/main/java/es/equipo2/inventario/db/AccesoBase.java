@@ -91,7 +91,7 @@ public class AccesoBase {
      */
     public Connection getConn(){
         try{
-            if (conn == null || !conn.isClosed()) {
+            if (conn == null || conn.isClosed()) {
                 abrirConexion();
             }
         }catch(SQLException e){
