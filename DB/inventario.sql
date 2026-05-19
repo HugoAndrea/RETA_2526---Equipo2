@@ -43,10 +43,19 @@ create table categoria(-- Categoría de los objetos
     nombre varchar(50) not null
 );
 
+insert into categoria (nombre) values ('Informatica'),
+                                      ('Electronica'),
+                                      ('Herramientas'),
+                                      ('Consumible'),
+                                      ('Red y comunicaciones');
+
 create table armario(-- Cada uno de los armarios del taller
 	idArmario int primary key auto_increment not null,
 	nombre varchar(50) not null
 );
+
+insert into armario (nombre) values ('Armario A'),
+                                    ('Armario B');
 
 create table balda(-- Cada balda de los armarios
 	idBalda int primary key auto_increment not null,
@@ -57,12 +66,30 @@ create table balda(-- Cada balda de los armarios
                                             ni balda 25 porque no existen */
 );
 
+insert into balda (numBalda, idArmario) values (1, 1),
+											   (2, 1),
+                                               (3, 1),
+                                               (1, 2),
+											   (2, 2);
+
 create table ubicacion(-- Ubicación de la balda
 	idUbicacion int primary key auto_increment not null,
 	posicion varchar(25) not null,
 	idBalda int,
 	foreign key(idBalda) references balda(idBalda)-- Revisar esta FK
 );
+
+INSERT INTO ubicacion (posicion, idBalda) VALUES ('Izquierda',  1),
+												 ('Centro',     1),
+												 ('Derecha',    1),
+                                                 ('Izquierda',  2),
+                                                 ('Derecha',    2),
+                                                 ('Izquierda',  3),
+                                                 ('Derecha',    3),
+                                                 ('Izquierda',  4),
+                                                 ('Derecha',    4),
+                                                 ('Izquierda',  5),
+                                                 ('Derecha',    5);
 
 create table objetoInventario(-- Almacena los objetos que se guardan en los armarios
 	idObjetoInventario int primary key auto_increment not null,
@@ -84,6 +111,11 @@ create table estado(-- estado de los objetos
 	idEstado int primary key auto_increment not null,
 	nombre varchar(30) not null
 );
+
+insert into estado (idEstado, nombre) VALUES (1, 'Disponible'),
+                                             (2, 'Prestado'),
+                                             (3, 'Averiado'),
+                                             (4, 'En reparacion');
 
 create table historialEstado(-- Historial de estados de objetos
 	idHistorialEstado int primary key auto_increment not null,
