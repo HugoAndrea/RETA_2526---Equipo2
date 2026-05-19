@@ -40,7 +40,6 @@ public class AccesoBase {
             this.url = prop.getProperty("db.url");
             this.usuario = prop.getProperty("db.usuario");
             this.clave = prop.getProperty("db.clave");
-            
             System.out.println("Configuración Cargada");
         } catch (IOException e) {
             System.out.println("Error al cargar el archivo con configuraciones");
@@ -60,14 +59,14 @@ public class AccesoBase {
             conn = DriverManager.getConnection(this.url, prop);
             
         } catch (SQLException e) {
-            System.out.println("Error al abrir la conexion");
+            System.out.println("Error al abrir la conexion" + e.getMessage());
             conn = null;
         }
     }
     
     private AccesoBase(){
         cargarArchivo();
-        abrirConexion();
+        
     }
     
     private static class AccesoBaseDatosHolder{
@@ -80,6 +79,10 @@ public class AccesoBase {
      */
     public static AccesoBase getInstance(){
         return AccesoBaseDatosHolder.INSTANCE;
+    }
+    
+    public void inicializar(){
+        abrirConexion();
     }
     
     /**

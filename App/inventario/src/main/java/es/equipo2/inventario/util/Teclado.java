@@ -26,7 +26,7 @@ public class Teclado {
         if (nombre == null) {
             return false;
         }
-        return nombre.matches("[A-Za-zÁÉÍÓÚáéíóú ]{3,25}") && nombre.replace(" ", "").trim().length() >= 3;
+        return nombre.matches("[A-Za-zÁÉÍÓÚáéíóú0-9 ]{3,25}") && nombre.replace(" ", "").trim().length() >= 3;
     }
     
     public static boolean passwordValido(String password){

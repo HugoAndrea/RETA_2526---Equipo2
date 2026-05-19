@@ -92,7 +92,7 @@ public class InformesPanel extends javax.swing.JPanel {
         txtFiltro = Estilo.campo(16);
         txtFiltro.setEnabled(false);
 
-        btnGenerar = Estilo.botonPrimario("▶  Generar");
+        btnGenerar = Estilo.botonPrimario("Generar");
         btnExportarCSV = Estilo.boton("CSV", new Color(80, 130, 80));
         btnExportarExcel = Estilo.boton("Excel", new Color(30, 120, 60));
         btnExportarPDF = Estilo.boton("PDF", new Color(160, 40, 40));
