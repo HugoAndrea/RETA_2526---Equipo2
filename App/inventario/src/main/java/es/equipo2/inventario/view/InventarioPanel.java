@@ -20,9 +20,11 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
 /**
- *  Panel de gestion de inventario, (solo administradores): alta, baja modificar, importar, exportar
- *  No he tocado (porque no puedo) el initComponents, he creado uno mio, para trabajar en el
- *  El myInictConcents contiene toda la logicam y el diseño
+ * Panel de gestion de inventario, (solo administradores): alta, baja modificar,
+ * importar, exportar No he tocado (porque no puedo) el initComponents, he
+ * creado uno mio, para trabajar en el El myInictConcents contiene toda la
+ * logicam y el diseño
+ *
  * @author DAW104
  */
 public class InventarioPanel extends javax.swing.JPanel {
@@ -36,11 +38,26 @@ public class InventarioPanel extends javax.swing.JPanel {
     private JTextField txtBuscar;
     private JLabel lblTotal;
 
+    private es.equipo2.inventario.controller.UsuarioController uc
+            = new es.equipo2.inventario.controller.UsuarioController();
+
     /**
      * Creates new form InventarioPanel
      */
     public InventarioPanel() {
         initComponents();
+        if (uc.esAdmin()) {
+            myInitComponents();
+            cargarDatos();
+        } else {
+            setLayout(new java.awt.BorderLayout());
+            JLabel aviso = new JLabel(
+                    "Acceso restringido: solo los administradores pueden gestionar el inventario.",
+                    SwingConstants.CENTER);
+            aviso.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 14));
+            aviso.setForeground(java.awt.Color.RED);
+            add(aviso, java.awt.BorderLayout.CENTER);
+        }
     }
 
     /**
@@ -173,6 +190,7 @@ public class InventarioPanel extends javax.swing.JPanel {
             });
         }
     }
+
     /**
      * Busca el texto con un for each
      */
@@ -189,8 +207,8 @@ public class InventarioPanel extends javax.swing.JPanel {
     }
 
     /**
-     * dos listas en las que usamos dos metodos "mostrar"
-     * si estan vacios saca un mensaje de warning
+     * dos listas en las que usamos dos metodos "mostrar" si estan vacios saca
+     * un mensaje de warning
      */
     private void mostrarDialogoAlta() {
         List<Categoria> cats = new CategoriaDAO().listar();
@@ -268,7 +286,7 @@ public class InventarioPanel extends javax.swing.JPanel {
     }
 
     /**
-     * Muestra 
+     * Muestra
      */
     private void mostrarDialogoModificar() {
         int fila = tabla.getSelectedRow();
