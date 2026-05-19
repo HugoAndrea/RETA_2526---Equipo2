@@ -9,23 +9,24 @@ import es.equipo2.inventario.model.Usuario;
 import es.equipo2.inventario.util.Teclado;
 import java.awt.*;
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 /**
- * Panel de gestion de usuarios (solo administrador)
- * Al crear un usuario nuevo pide la contrasenia del admin activo para confirmar
- * initComponents() generado por NetBeans no tocar
- * myInitComponents() contiene todo el diseno y la logica.
+ * Panel de gestion de usuarios (solo administrador) Al crear un usuario nuevo
+ * pide la contrasenia del admin activo para confirmar initComponents() generado
+ * por NetBeans no tocar myInitComponents() contiene todo el diseno y la logica.
+ *
  * @author DAW104
  */
 public class UsuariosPanel extends javax.swing.JPanel {
 
-    
     private UsuarioController controller = new UsuarioController();
-    private JTable            tabla;
+    private JTable tabla;
     private DefaultTableModel modeloTabla;
-    private JButton           btnAlta, btnModificar, btnEliminar;
-    private JLabel            lblTotal;
+    private JButton btnAlta, btnModificar, btnEliminar;
+    private JLabel lblTotal;
+
     /**
      * Creates new form UsuariosPanel
      */
@@ -72,6 +73,7 @@ public class UsuariosPanel extends javax.swing.JPanel {
                 return false;
             }
         };
+
         tabla = new JTable(modeloTabla);
         Estilo.estilizarTabla(tabla);
         tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -80,20 +82,31 @@ public class UsuariosPanel extends javax.swing.JPanel {
         tabla.getColumnModel().getColumn(1).setPreferredWidth(250);
         tabla.getColumnModel().getColumn(2).setPreferredWidth(150);
 
-        // Colorea las filas segun el rol
-        tabla.setDefaultRenderer(Object.class,
-                new javax.swing.table.DefaultTableCellRenderer() {
+        // Renderer: colorea filas por rol Y fuerza texto negro
+        // CORRECCION: el anterior no ponia setForeground(Color.BLACK)
+        // y Windows pintaba el texto en gris invisible
+        tabla.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable t, Object value,
                     boolean sel, boolean foc, int row, int col) {
-                Component c = super.getTableCellRendererComponent(
+
+                JLabel lbl = (JLabel) super.getTableCellRendererComponent(
                         t, value, sel, foc, row, col);
-                if (!sel) {
+
+                if (sel) {
+                    lbl.setBackground(Estilo.AZUL_CLARO);
+                    lbl.setForeground(Estilo.AZUL_OSCURO);
+                } else {
                     String rol = (String) t.getModel().getValueAt(row, 2);
-                    c.setBackground("administrador".equals(rol)
-                            ? new Color(230, 240, 255) : Estilo.BLANCO);
+                    lbl.setBackground("administrador".equals(rol)
+                            ? new Color(230, 240, 255)
+                            : (row % 2 == 0 ? Estilo.BLANCO : new Color(250, 251, 253)));
+                    lbl.setForeground(Color.BLACK); // texto negro siempre
                 }
-                return c;
+
+                lbl.setOpaque(true);
+                lbl.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 8));
+                return lbl;
             }
         });
 
@@ -130,28 +143,9 @@ public class UsuariosPanel extends javax.swing.JPanel {
         btnModificar.addActionListener(e -> mostrarDialogoModificar());
         btnEliminar.addActionListener(e -> eliminarUsuario());
     }
-
     /**
      * Construye un formulario con etiquetas y componentes alineados.
      */
-    private JPanel construirForm(String[] etiquetas, Component[] componentes) {
-        JPanel form = new JPanel(new GridBagLayout());
-        form.setBackground(Estilo.GRIS_FONDO);
-        form.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        GridBagConstraints g = new GridBagConstraints();
-        g.insets = new Insets(5, 5, 5, 5);
-        g.fill = GridBagConstraints.HORIZONTAL;
-        for (int i = 0; i < etiquetas.length; i++) {
-            g.gridx = 0;
-            g.gridy = i;
-            g.weightx = 0;
-            form.add(Estilo.label(etiquetas[i]), g);
-            g.gridx = 1;
-            g.weightx = 1;
-            form.add(componentes[i], g);
-        }
-        return form;
-    }
 
     private void cargarDatos() {
         modeloTabla.setRowCount(0);
@@ -297,6 +291,25 @@ public class UsuariosPanel extends javax.swing.JPanel {
             JOptionPane.showMessageDialog(this, "Error al modificar",
                     "Error", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private JPanel construirForm(String[] etiquetas, Component[] componentes) {
+        JPanel form = new JPanel(new GridBagLayout());
+        form.setBackground(Estilo.GRIS_FONDO);
+        form.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        GridBagConstraints g = new GridBagConstraints();
+        g.insets = new Insets(5, 5, 5, 5);
+        g.fill = GridBagConstraints.HORIZONTAL;
+        for (int i = 0; i < etiquetas.length; i++) {
+            g.gridx = 0;
+            g.gridy = i;
+            g.weightx = 0;
+            form.add(Estilo.label(etiquetas[i]), g);
+            g.gridx = 1;
+            g.weightx = 1;
+            form.add(componentes[i], g);
+        }
+        return form;
     }
 
     /**

@@ -19,7 +19,7 @@ import java.util.List;
  */
 public class BusquedaController {
     // se cambia cuando lo acabamos en la maquina virtual 
-    private static final String URL = "file:///D:/Usuarios/DAW123/Desktop/Web_reto/Plano.html";
+    private static final String URL = "http://10.0.10.23";
     
     private ObjetoDAO dao = new ObjetoDAO();
     
