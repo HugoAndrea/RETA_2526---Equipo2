@@ -20,7 +20,7 @@
         }
 
         .svg-wrapper {
-            flex: 0 0 auto;
+            flex: 1 1 auto;
             background: #ffffff;
             border: 2px solid #0f172a;
             border-radius: 8px;
@@ -28,13 +28,12 @@
             box-shadow: 0 4px 16px rgba(0,0,0,0.2);
         }
 
-        .svg-wrapper svg {
+      .svg-wrapper svg {
             display: block;
             width: 100%;
-            max-width: 400px;
+            max-width: 1000px;
             height: auto;
-        }
-
+      }
         /* Zonas clicables */
         .zone {
             cursor: pointer;
@@ -68,7 +67,7 @@
         /* Panel de notas */
         .notes-panel {
             flex: 1;
-            min-width: 200px;
+            max-width: 350px;
         }
 
         .panel-placeholder {
@@ -77,7 +76,8 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
-            height: 180px;
+            height: 280px;
+            width: 180px;
             border: 2px dashed #3b82f6;
             border-radius: 8px;
             color: #ffffff;
@@ -91,6 +91,7 @@
             display: none;
             flex-direction: column;
             background: #1e3a5f;
+            height: 400px;
             border: 2px solid #3b82f6;
             border-radius: 8px;
             overflow: hidden;
@@ -144,6 +145,7 @@
             font-family: Arial, sans-serif;
             font-size: 0.85rem;
             line-height: 1.6;
+            white-space: pre-wrap;
             color: #ffffff;
             background: #1e3a5f;
             border: none;
@@ -214,7 +216,7 @@
             opacity: 0.8;
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 1200px) {
             .plano-workspace {
                 flex-direction: column;
             }
@@ -367,7 +369,7 @@
                             <div class="note-textarea" id="note-textarea"></div>
                        <a id="note-img-link" href="#" target="_blank" style="display:none; margin:0 14px 14px 14px;">
     <img id="note-img"
-         style="display:none; max-width:100%; max-height:150px; border-radius:8px; object-fit:cover; cursor:pointer; transition: opacity 0.2s;"
+         style="display:none; width:300px;; height:200px; border-radius:8px; object-fit:cover; cursor:pointer; transition: opacity 0.2s;"
          onmouseover="this.style.opacity='0.5'"
          onmouseout="this.style.opacity='1'"
          alt="Foto del elemento">
@@ -463,12 +465,12 @@
        
 
         const notes = {
-            "zona-inf-izq":     {text: "Armario principal de almacenamiento en el cual puedes encontrar cables, placas base, procesadores y demas componentes informáticos.", img: "armario_principal.png", link: "Contacto.html"},   // Zona Inferior Izquierda
-            "barra-superior":   {text: "Mesa donde se encuentran ordenadores y monitores en los cuales se pueden hacer pruebas.", img: "mesa_superior.png", link: "Contacto.html"},   // Barra Superior
-            "columna-derecha":  {text: "Mesa en la cual se hacen preubas con equipos o zona de trabajo para algunos profesores y alumnos.", img: "mesa_ventana.png", link: "Contacto.html"}, // Columna Derecha
-            "elipse-central":   {text: "Mesa en la cual se puede trabajar con los ordenadores de diferentes zonas o donde pueden trabajar los profesores del departamento de informática.", img: "mesa_central.png", link: "Contacto.html"},   // Elipse Central (mesa central)
-            "zona-inf-der":     {text: "Zona donde hay monitores de repuesto al igual que teclados y ratones de repuesto para usar en las diferentes zonas del taller.", img: "mesa_inferior_derecha.png", link: "Contacto.html"},   // Zona Inferior Derecha
-            "bloque-izquierdo": {text: "Mesa en la cual se encuentran diferentes torres y componentes de repuesto.", img: "mesa_izq.png", link: "Contacto.html"},   // Bloque Izquierdo
+            "zona-inf-izq":     {text: "Armario principal de almacenamiento en el cual puedes encontrar cables, placas base, procesadores y demas componentes informáticos.", img: "armario_principal.png", link: "Inventario_armario.html"},   // Zona Inferior Izquierda
+            "barra-superior":   {text: "Mesa donde se encuentran ordenadores y monitores en los cuales se pueden hacer pruebas.\nSi quieres ver una vista detallada del plano del taller en 2D como en 3d haz clic en la imágen.", img: "mesa_superior.png", link: "https://floorplanner.com/projects/185616421/editor"},   // Barra Superior
+            "columna-derecha":  {text: "Mesa en la cual se hacen preubas con equipos o zona de trabajo para algunos profesores y alumnos.", img: "mesa_ventana.png", link: "https://floorplanner.com/projects/185616421/editor"}, // Columna Derecha
+            "elipse-central":   {text: "Mesa en la cual se puede trabajar con los ordenadores de diferentes zonas o donde pueden trabajar los profesores del departamento de informática.\nSi quieres ver una vista detallada del plano del taller en 2D como en 3d haz clic en la imágen.", img: "mesa_central.png", link: "https://floorplanner.com/projects/185616421/editor"},   // Elipse Central (mesa central)
+            "zona-inf-der":     {text: "Zona donde hay monitores de repuesto al igual que teclados y ratones de repuesto para usar en las diferentes zonas del taller.\nSi quieres ver una vista detallada del plano del taller en 2D como en 3d haz clic en la imágen.", img: "mesa_inferior_derecha.png", link: "https://floorplanner.com/projects/185616421/editor"},   // Zona Inferior Derecha
+            "bloque-izquierdo": {text: "Mesa en la cual se encuentran diferentes torres y componentes de repuesto.\nSi quieres ver una vista detallada del plano del taller en 2D como en 3d haz clic en la imágen.", img: "mesa_izq.png", link: "https://floorplanner.com/projects/185616421/editor"},   // Bloque Izquierdo
             "rack":             {text: "Estructura en la cual se encuentran switches que proveen de conexion a internet a los diferentes equipos informáticos del taller.", img: ""},  // Armario / Rack
             "puerta-1":         {text: "Puerta de acceso desde el aula IF03", img: ""},   // Puerta 1
             "puerta-2":         {text: "Puerta de acceso desde el pasillo", img: ""},   // Puerta 2

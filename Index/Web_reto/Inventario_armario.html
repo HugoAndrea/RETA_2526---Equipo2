@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Inventario interactivo del armario principal del taller informático">
+    <meta name="keywords" content="inventario, armario, taller, componentes, informática">
+    <meta name="author" content="The Demons Team">
+    <title>Inventario Armario</title>
+    <link rel="stylesheet" href="estilos.css">
+    <style>
+        /* ===== ARMARIO INTERACTIVO ===== */
+        .plano-workspace {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .svg-wrapper {
+            flex: 1 1 auto;
+            background: #ffffff;
+            border: 2px solid #0f172a;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        }
+
+        .svg-wrapper svg {
+            display: block;
+            width: 100%;
+            max-width: 1000px;
+            height: auto;
+        }
+
+        /* Zonas clicables */
+        .zone {
+            cursor: pointer;
+        }
+
+        .zone rect,
+        .zone path {
+            transition: fill 0.15s;
+        }
+
+        .zone:hover rect,
+        .zone:hover path.zona-fill {
+            fill: #dbeafe !important;
+        }
+
+        .zone.active rect,
+        .zone.active path.zona-fill {
+            fill: #93c5fd !important;
+            stroke: #1d4ed8 !important;
+            stroke-width: 2px;
+        }
+
+        .note-dot {
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .note-dot.visible { opacity: 0; }
+
+        /* Panel de notas */
+        .notes-panel {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .panel-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            height: 180px;
+            border: 2px dashed #3b82f6;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 0.85rem;
+            text-align: center;
+            padding: 20px;
+            background: rgba(59,130,246,0.2);
+        }
+
+        .note-card {
+            display: none;
+            flex-direction: column;
+            background: #1e3a5f;
+            border: 2px solid #3b82f6;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+            animation: slideIn 0.2s ease;
+        }
+
+        .note-card.visible { display: flex; }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(10px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+
+        .note-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: #0f172a;
+        }
+
+        .note-card-header .label {
+            font-size: 0.65rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #93c5fd;
+        }
+
+        .note-card-header .element-name {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #ffffff;
+            margin-top: 2px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #93c5fd;
+            cursor: pointer;
+            font-size: 1.2rem;
+            line-height: 1;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background 0.15s;
+        }
+        .close-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+        .note-textarea {
+            font-family: Arial, sans-serif;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: #ffffff;
+            background: #1e3a5f;
+            border: none;
+            min-height: 120px;
+            padding: 14px;
+            width: 100%;
+        }
+
+        .note-textarea.empty {
+            color: #64748b;
+            font-style: italic;
+        }
+
+        /* Badges de stock dentro del panel */
+        .stock-list {
+            list-style: none;
+            padding: 0 14px 14px 14px;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .stock-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #e2e8f0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 5px;
+        }
+
+        .stock-list li:last-child {
+            border-bottom: none;
+        }
+
+        .badge-stock {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75em;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        .badge-ok    { background-color: #22c55e; color: #000; }
+        .badge-low   { background-color: #f97316; color: #000; }
+        .badge-empty { background-color: #ef4444; color: #fff; }
+
+        .summary-item {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            background: #1e3a5f;
+            border: 1px solid #3b82f6;
+            border-radius: 6px;
+            padding: 8px 12px;
+        }
+
+        .summary-item .tag {
+            font-size: 0.68rem;
+            color: #93c5fd;
+            background: #0f172a;
+            padding: 2px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+            margin-top: 2px;
+        }
+
+        .summary-item .text {
+            font-size: 0.8rem;
+            line-height: 1.5;
+            color: #ffffff;
+        }
+
+        .plano-hint {
+            font-size: 0.8rem;
+            color: #ffffff;
+            margin-bottom: 12px;
+            opacity: 0.8;
+        }
+
+        /* Etiquetas SVG */
+        .zona-label {
+            font-family: Arial, sans-serif;
+            font-size: 9px;
+            fill: #1e3a5f;
+            text-anchor: middle;
+            pointer-events: none;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .plano-workspace {
+                flex-direction: column;
+            }
+            .svg-wrapper svg {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <img src="Inventario_armario.png" alt="Inventario Armario" class="logo">
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="index.html"><img src="inicio.png" alt="Inicio" class="Inicio"></a></li>
+            <li><a href="Plano.html"><img src="Plano.png" alt="Plano" class="Plano"></a></li>
+            <li><a href="Sobre_nosotros.html"><img src="Sobre_nosotros.png" alt="Sobre Nosotros" class="Sobre_nosotros"></a></li>
+            <li><a href="Contacto.html"><img src="Contacto.png" alt="Contacto" class="Contacto"></a></li>
+        </ul>
+    </nav>
+
+    <div class="contenedor-principal">
+        <main>
+            <article>
+                <h2>Inventario Interactivo del Armario Principal</h2>
+                <p class="plano-hint">Haz clic en cualquier zona del armario para ver su contenido y estado de stock.</p>
+
+                <!-- Workspace: SVG + panel de notas -->
+                <div class="plano-workspace">
+
+                    <!-- SVG Armario -->
+                    <div class="svg-wrapper">
+                        <svg
+                            version="1.1"
+                            viewBox="-0.5 -0.5 372 273"
+                            xmlns="http://www.w3.org/2000/svg">
+
+                            <!-- Fondo general del armario -->
+                            <rect x="0" y="0" width="370" height="270"
+                                fill="#f5f5f5" stroke="#000000" stroke-width="1" pointer-events="none"/>
+
+                            <!-- ===== ESTANTES SUPERIORES - FILA A (y=0-30) ===== -->
+
+                            <!-- Estante A1: Izquierda (0-90) -->
+                            <g class="zone" data-id="estante-a1" data-name="Estante A1 (Izq. Superior)" onclick="selectZone(this)">
+                                <rect x="0" y="0" width="90" height="30"
+                                    fill="#ffffff" stroke="#000000" pointer-events="all"/>
+                                <text class="zona-label" x="45" y="18">Estante A1</text>
+                            </g>
+                            <circle id="dot-estante-a1" class="note-dot" cx="45" cy="15" r="5" fill="#3b82f6"/>
+
+                            <!-- Estante A2: Centro-izq (90-180) -->
+                            <g class="zone" data-id="estante-a2" data-name="Estante A2 (Centro-Izq. Superior)" onclick="selectZone(this)">
+                                <rect x="90" y="0" width="90" height="30"
+                                    fill="#ffffff" stroke="#000000" pointer-events="all"/>
+                                <text class="zona-label" x="135" y="18">Estante A2</text>
+                            </g>
+                            <circle id="dot-estante-a2" class="note-dot" cx="135" cy="15" r="5" fill="#3b82f6"/>
+
+                            <!-- Estante A3: Centro-der (180-280) -->
+                            <g class="zone" data-id="estante-a3" data-name="Estante A3 (Centro-Der. Superior)" onclick="selectZone(this)">
+                                <rect x="180" y="0" width="100" height="30"
+                                    fill="#ffffff" stroke="#000000" pointer-events="all"/>
+                                <text class="zona-label" x="230" y="18">Estante A3</text>
+                            </g>
+                            <circle id="dot-estante-a3" class="note-dot" cx="230" cy="15" r="5" fill="#3b82f6"/>
+
+                            <!-- Estante A4: Derecha (280-370) -->
+                            <g class="zone" data-id="estante-a4" data-name="Estante A4 (Der. Superior)" onclick="selectZone(this)">
+                                <rect x="280" y="0" width="90" height="30"
+                                    fill="#ffffff" stroke="#000000" pointer-events="all"/>
+                                <text class="zona-label" x="325" y="18">Estante A4</text>
+                            </g>
+                            <circle id="dot-estante-a4" class="note-dot" cx="325" cy="15" r="5" fill="#3b82f6"/>
+
+                            <!-- ===== ESTANTES SUPERIORES - FILA B (y=30-60) ===== -->
+
+                            <!-- Estante B1: Izquierda (0-90) -->
+                            <g class="zone" data-id="estante-b1" data-name="Estante B1 (Izq.)" onclick="selectZone(this)">
+                                <rect x="0" y="30" width="90" height="30"
+                                    fill="#ffffff" stroke="#000000" pointer-events="all"/>
+                                <text class="zona-label" x="45" y="48">Estante B1</text>
+                            </g>
+                            <circle id="dot-estante-b1" class="note-dot" cx="45" cy="45" r="5" fill="#3b82f6"/>
+
+                            <!-- Estante B2: Centro-izq (90-180) -->
+                            <g class="zone" data-id="estante-b2" data-name="Estante B2 (Centro-Izq.)" onclick="selectZone(this)">
+                                <rect x="90" y="30" width="90" height="30"
+                                    fill="#ffffff" stroke="#000000" pointer-events="all"/>
+                                <text class="zona-label" x="135" y="48">Estante B2</text>
+                            </g>
+                            <circle id="dot-estante-b2" class="note-dot" cx="135" cy="45" r="5" fill="#3b82f6"/>
+
+                            <!-- Estante B3: Centro-der (180-280) -->
+                            <g class="zone" data-id="estante-b3" data-name="Estante B3 (Centro-Der.)" onclick="selectZone(this)">
+                                <rect x="180" y="30" width="100" height="30"
+                                    fill="#ffffff" stroke="#000000" pointer-events="all"/>
+                                <text class="zona-label" x="230" y="48">Estante B3</text>
+                            </g>
+                            <circle id="dot-estante-b3" class="note-dot" cx="230" cy="45" r="5" fill="#3b82f6"/>
+
+                            <!-- Estante B4: Derecha (280-370) -->
+                            <g class="zone" data-id="estante-b4" data-name="Estante B4 (Der.)" onclick="selectZone(this)">
+                                <rect x="280" y="30" width="90" height="30"
+                                    fill="#ffffff" stroke="#000000" pointer-events="all"/>
+                                <text class="zona-label" x="325" y="48">Estante B4</text>
+                            </g>
+                            <circle id="dot-estante-b4" class="note-dot" cx="325" cy="45" r="5" fill="#3b82f6"/>
+
+                            <!-- ===== PUERTA IZQUIERDA (grande) x=0,y=60 90×210 ===== -->
+                            <g class="zone" data-id="puerta-izq" data-name="Puerta Doble Izquierda" onclick="selectZone(this)">
+                                <rect x="0" y="60" width="90" height="210"
+                                    fill="#ffffff" stroke="#000000" pointer-events="all"/>
+                                <!-- línea central de la puerta -->
+                                <line x1="45" y1="60" x2="45" y2="270" stroke="#000000" stroke-width="1" pointer-events="none"/>
+                                <!-- manivelas -->
+                                <line x1="35" y1="150" x2="35" y2="160" stroke="#000000" stroke-width="2" pointer-events="none"/>
+                                <line x1="45" y1="150" x2="45" y2="160" stroke="#000000" stroke-width="2" pointer-events="none"/>
+                                <circle cx="50" cy="165" r="3" fill="#000000" pointer-events="none"/>
+                                <text class="zona-label" x="22" y="88">Taller</text>
+                                <text class="zona-label" x="67" y="88">Taller</text>
+                            </g>
+                            <circle id="dot-puerta-izq" class="note-dot" cx="45" cy="165" r="5" fill="#3b82f6"/>
+
+                            <!-- ===== CAJONES IZQUIERDOS (x=90) ===== -->
+
+                            <!-- Cajón Izq 1 (y=60-100) -->
+                            <g class="zone" data-id="cajon-izq-1" data-name="Estante Izquierdo 1" onclick="selectZone(this)">
+                                <rect x="90" y="60" width="70" height="40"
+                                    fill="#ffffff" stroke="#000000" pointer-events="all"/>
+                                <text class="zona-label" x="125" y="83">Est Izq 1</text>
+                            </g>
+                            <circle id="dot-cajon-izq-1" class="note-dot" cx="125" cy="80" r="5" fill="#3b82f6"/>
+
+                            <!-- Cajón Izq 2 (y=100-140) -->
+                            <g class="zone" data-id="cajon-izq-2" data-name="Estante Izquierdo 2" onclick="selectZone(this)">
+                                <rect x="90" y="100" width="70" height="40"
+                                    fill="#ffffff" stroke="#000000" pointer-events="all"/>
+                                <text class="zona-label" x="125" y="123">Est Izq 2</text>
+                            </g>
+                            <circle id="dot-cajon-izq-2" class="note-dot" cx="125" cy="120" r="5" fill="#3b82f6"/>
+
+                            <!-- Cajón Izq 3 (y=140-180) -->
+                            <g class="zone" data-id="cajon-izq-3" data-name="Estante Izquierdo 3" onclick="selectZone(this)">
+                                <rect x="90" y="140" width="70" height="40"
+                                    fill="#ffffff" stroke="#000000" pointer-events="all"/>
+                                <text class="zona-label" x="125" y="163">Est Izq 3</text>
+                            </g>
+                            <circle id="dot-cajon-izq-3" class="note-dot" cx="125" cy="160" r="5" fill="#3b82f6"/>
+
+                            <!-- ===== CAJONES CENTRALES (x=160) ===== -->
+
+                            <!-- Cajón Centro 1 (y=60-100) -->
+                            <g class="zone" data-id="cajon-cen-1" data-name="Estante Central 1" onclick="selectZone(this)">
+                                <rect x="160" y="60" width="50" height="40"
+                                    fill="#ffffff" stroke="#000000" pointer-events="all"/>
+                                <text class="zona-label" x="185" y="83">Est 1</text>
+                            </g>
+                            <circle id="dot-cajon-cen-1" class="note-dot" cx="185" cy="80" r="5" fill="#3b82f6"/>
+
+                            <!-- Cajón Centro 2 (y=100-140) -->
+                            <g class="zone" data-id="cajon-cen-2" data-name="Estante Central 2" onclick="selectZone(this)">
+                                <rect x="160" y="100" width="50" height="40"
+                                    fill="#ffffff" stroke="#000000" pointer-events="all"/>
+                                <text class="zona-label" x="185" y="123">Est 2</text>
+                            </g>
+                            <circle id="dot-cajon-cen-2" class="note-dot" cx="185" cy="120" r="5" fill="#3b82f6"/>
+
+                            <!-- Cajón Centro 3 (y=140-180) -->
+                            <g class="zone" data-id="cajon-cen-3" data-name="Estante Central 3" onclick="selectZone(this)">
+                                <rect x="160" y="140" width="50" height="40"
+                                    fill="#ffffff" stroke="#000000" pointer-events="all"/>
+                                <text class="zona-label" x="185" y="163">Est 3</text>
+                            </g>
+                            <circle id="dot-cajon-cen-3" class="note-dot" cx="185" cy="160" r="5" fill="#3b82f6"/>
+
+                            <!-- ===== CAJONES DERECHOS (x=210) ===== -->
+
+                            <!-- Cajón Der 1 (y=60-100) -->
+                            <g class="zone" data-id="cajon-der-1" data-name="Estante Derecho 1" onclick="selectZone(this)">
+                                <rect x="210" y="60" width="70" height="40"
+                                    fill="#ffffff" stroke="#000000" pointer-events="all"/>
+                                <text class="zona-label" x="245" y="83">Est Der 1</text>
+                            </g>
+                            <circle id="dot-cajon-der-1" class="note-dot" cx="245" cy="80" r="5" fill="#3b82f6"/>
+
+                            <!-- Cajón Der 2 (y=100-140) -->
+                            <g class="zone" data-id="cajon-der-2" data-name="Estante Derecho 2" onclick="selectZone(this)">
+                                <rect x="210" y="100" width="70" height="40"
+                                    fill="#ffffff" stroke="#000000" pointer-events="all"/>
+                                <text class="zona-label" x="245" y="123">Est Der 2</text>
+                            </g>
+                            <circle id="dot-cajon-der-2" class="note-dot" cx="245" cy="120" r="5" fill="#3b82f6"/>
+
+                            <!-- Cajón Der 3 (y=140-180) -->
+                            <g class="zone" data-id="cajon-der-3" data-name="Estante Derecho 3" onclick="selectZone(this)">
+                                <rect x="210" y="140" width="70" height="40"
+                                    fill="#ffffff" stroke="#000000" pointer-events="all"/>
+                                <text class="zona-label" x="245" y="163">Est Der 3</text>
+                            </g>
+                            <circle id="dot-cajon-der-3" class="note-dot" cx="245" cy="160" r="5" fill="#3b82f6"/>
+
+                            <!-- ===== PUERTA DOBLE IZQ INFERIOR (x=90, y=180, 70×90) ===== -->
+                            <g class="zone" data-id="puerta-dbl-izq" data-name="Puerta Doble Izquierda (Inferior)" onclick="selectZone(this)">
+                                <rect x="90" y="180" width="70" height="90"
+                                    fill="#ffffff" stroke="#000000" pointer-events="all"/>
+                                <line x1="125" y1="180" x2="125" y2="270" stroke="#000000" stroke-width="1" pointer-events="none"/>
+                                <line x1="115" y1="220" x2="115" y2="230" stroke="#000000" stroke-width="2" pointer-events="none"/>
+                                <line x1="125" y1="220" x2="125" y2="230" stroke="#000000" stroke-width="2" pointer-events="none"/>
+                                <circle cx="130" cy="232" r="3" fill="#000000" pointer-events="none"/>
+                                <text class="zona-label" x="125" y="205">P. Doble Izq</text>
+                            </g>
+                            <circle id="dot-puerta-dbl-izq" class="note-dot" cx="108" cy="232" r="5" fill="#3b82f6"/>
+
+                            <!-- ===== ESTANTE CENTRAL INFERIOR (x=160, y=180, 50×90) ===== -->
+                            <g class="zone" data-id="puerta-cen-inf" data-name="Puerta Central Inferior" onclick="selectZone(this)">
+                                <rect x="160" y="180" width="50" height="90"
+                                    fill="#ffffff" stroke="#000000" pointer-events="all"/>
+                                <line x1="160" y1="220" x2="170" y2="220" stroke="#000000" stroke-width="2" pointer-events="none"/>
+                                <circle cx="165" cy="232" r="3" fill="#000000" pointer-events="none"/>
+                                <text class="zona-label" x="185" y="205">P. Cen</text>
+                                <text class="zona-label" x="185" y="216"></text>
+                            </g>
+                            <circle id="dot-puerta-cen-inf" class="note-dot" cx="185" cy="232" r="5" fill="#3b82f6"/>
+
+                            <!-- ===== PUERTA DOBLE DER INFERIOR (x=210, y=180, 70×90) ===== -->
+                            <g class="zone" data-id="puerta-dbl-der" data-name="Puerta Doble Derecha (Inferior)" onclick="selectZone(this)">
+                                <rect x="210" y="180" width="70" height="90"
+                                    fill="#ffffff" stroke="#000000" pointer-events="all"/>
+                                <line x1="245" y1="180" x2="245" y2="270" stroke="#000000" stroke-width="1" pointer-events="none"/>
+                                <line x1="235" y1="220" x2="235" y2="230" stroke="#000000" stroke-width="2" pointer-events="none"/>
+                                <line x1="245" y1="220" x2="245" y2="230" stroke="#000000" stroke-width="2" pointer-events="none"/>
+                                <circle cx="250" cy="232" r="3" fill="#000000" pointer-events="none"/>
+                                <text class="zona-label" x="245" y="205">P. Doble Der</text>
+                            </g>
+                            <circle id="dot-puerta-dbl-der" class="note-dot" cx="228" cy="232" r="5" fill="#3b82f6"/>
+
+                            <!-- ===== PUERTA DERECHA (grande) x=280,y=60 90×210 ===== -->
+                            <g class="zone" data-id="puerta-der" data-name="Puerta Doble Derecha" onclick="selectZone(this)">
+                                <rect x="280" y="60" width="90" height="210"
+                                    fill="#ffffff" stroke="#000000" pointer-events="all"/>
+                                <!-- línea central -->
+                                <line x1="325" y1="60" x2="325" y2="270" stroke="#000000" stroke-width="1" pointer-events="none"/>
+                                <!-- manivelas -->
+                                <line x1="315" y1="150" x2="315" y2="160" stroke="#000000" stroke-width="2" pointer-events="none"/>
+                                <line x1="325" y1="150" x2="325" y2="160" stroke="#000000" stroke-width="2" pointer-events="none"/>
+                                <circle cx="330" cy="165" r="3" fill="#000000" pointer-events="none"/>
+                                <text class="zona-label" x="302" y="88">DTD</text>
+                                <text class="zona-label" x="347" y="88">DTD</text>
+                            </g>
+                            <circle id="dot-puerta-der" class="note-dot" cx="325" cy="165" r="5" fill="#3b82f6"/>
+
+                        </svg>
+                    </div>
+
+                    <!-- Panel de notas / inventario -->
+                    <div class="notes-panel">
+                        <div class="panel-placeholder" id="placeholder">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/>
+                                <path d="M16 3H8v4h8V3z"/>
+                            </svg>
+                            Selecciona una zona del armario<br>para ver su inventario
+                        </div>
+
+                        <div class="note-card" id="note-card">
+                            <div class="note-card-header">
+                                <div>
+                                    <div class="label">Zona seleccionada</div>
+                                    <div class="element-name" id="element-name">—</div>
+                                </div>
+                                <button class="close-btn" onclick="closePanel()" title="Cerrar">✕</button>
+                            </div>
+                            <div class="note-textarea" id="note-textarea"></div>
+                            <ul class="stock-list" id="stock-list"></ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resumen de zonas -->
+            </article>
+        </main>
+
+        <aside>
+            <h3>Sobre el armario</h3>
+            <p>Haz clic en cualquier zona del armario para consultar el inventario detallado de ese compartimento y ver el estado de stock de cada componente.</p>
+            <img src="Taller_informatica.png" alt="Foto del taller">
+        </aside>
+    </div>
+
+    <footer class="footer-custom">
+
+        <div class="footer-container">
+
+            <div class="footer-column logo-column">
+                <img src="GC.png" alt="Gobierno de Cantabria" class="footer-logo">
+            </div>
+
+            <div class="footer-column">
+                <h3>INFORMACIÓN</h3>
+                <div class="title-line"></div>
+                <ul class="footer-links">
+                    <li><a href="https://www.google.com/maps/place/IES+Miguel+Herrero+Pereda/@43.3524476,-4.0650765,820m/data=!3m2!1e3!4b1!4m6!3m5!1s0xd493e18f1f29733:0x1420ebdf20460746!8m2!3d43.3524437!4d-4.0625016!16s%2Fg%2F119v3lm7j?entry=ttu&g_ep=EgoyMDI2MDUwNi4wIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noopener noreferrer">Mapa del sitio</a></li>
+                    <li><a href="https://www.educantabria.es/aviso-legal" target="_blank" rel="noopener noreferrer">Aviso Legal</a></li>
+                    <li><a href="https://www.educantabria.es/proteccion-datos" target="_blank" rel="noopener noreferrer">Protección de datos</a></li>
+                    <li><a href="https://www.educantabria.es/cookies" target="_blank" rel="noopener noreferrer">Política de Cookies</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <h3>CONTACTO</h3>
+                <div class="title-line"></div>
+                <div class="contact-item">
+                    <span class="icon">📍</span>
+                    <p>P.º de Julio Hauzeur, 59, 39300,<br>Torrelavega, Cantabria</p>
+                </div>
+                <div class="contact-item">
+                    <span class="icon">📞</span>
+                    <p>942 88 24 98</p>
+                </div>
+                <div class="contact-item">
+                    <span class="icon">✉️</span>
+                    <p>ies.miguel.herrero.pereda@educantabria.es</p>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="footer-divider"></div>
+
+        <div class="footer-bottom">
+            <div class="footer-brand">
+                <img src="Educantabria.png" alt="Educantabria">
+            </div>
+            <div class="footer-copy">
+                © Copyright 2026. Todos los derechos reservados.
+            </div>
+            <div class="social-links">
+                <a href="https://www.facebook.com/p/Ies-Miguel-Herrero-Pereda-100087928148760/" class="social-btn fb" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
+                    <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                </a>
+                <a href="https://www.youtube.com/@departamentoinformaticaies2288" class="social-btn yt" aria-label="YouTube" target="_blank" rel="noopener noreferrer">
+                    <svg viewBox="0 0 24 24"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58a2.78 2.78 0 0 0 1.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58zM9.75 15.02V8.98L15.5 12l-5.75 3.02z"/></svg>
+                </a>
+                <a href="https://www.instagram.com/ies.miguelherrero/" class="social-btn ig" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
+                    <svg viewBox="0 0 24 24">
+                        <rect x="2" y="2" width="20" height="20" rx="5" fill="none" stroke="white" stroke-width="2"/>
+                        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" fill="none" stroke="white" stroke-width="2"/>
+                        <circle cx="17.5" cy="6.5" r="1.5" fill="white"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // ============================================================
+        // INVENTARIO POR ZONA
+        // Cada zona tiene: text (descripción) e items (lista de stock)
+        // items: { nombre, cantidad, estado: 'ok'|'low'|'empty' }
+        // ============================================================
+        const notes = {
+            "puerta-izq": {
+                text: "Puerta doble izquierda del armario principal. Contiene:",
+                items: [
+                    { nombre: "Destornilladores de precisión",      cantidad: "12 uds", estado: "ok"    },
+                    { nombre: "Placa base AMD",             cantidad: "3 uds",  estado: "low"   },
+                    { nombre: "Placa base Intel",  cantidad: "8 uds",  estado: "ok"    },
+                    { nombre: "Discos SSD",  cantidad: "2 uds",  estado: "low"   },
+                    { nombre: "WebCam",  cantidad: "2 uds",  estado: "low"   },
+                    { nombre: "Microprocesadores Intel",  cantidad: "2 uds",  estado: "low"   },
+                    { nombre: "Multímetros",  cantidad: "2 uds",  estado: "low"   },
+                    { nombre: "T. Gráficas",  cantidad: "2 uds",  estado: "low"   },
+                    { nombre: "Fuentes de alimentación",  cantidad: "2 uds",  estado: "low"   },
+                    { nombre: "Microprocesadores AMD",  cantidad: "2 uds",  estado: "low"   },
+                ]
+            },
+            "puerta-der": {
+                text: "Contiene:",
+                items: [
+                    { nombre: "Material exclusivo de DTD (coordinador TIC del centro)",         cantidad: "1 ud",   estado: "low"   },
+                
+                    
+                ]
+            },
+            "cajon-izq-1": {
+                text: "Contiene:",
+                items: [
+                    { nombre: "Material para placas base", cantidad: "5 uds", estado: "ok"    },
+                ]
+            },
+            "cajon-izq-2": {
+                text: "Contiene:",
+                items: [
+                    { nombre: "Placas Base", cantidad: "4 uds", estado: "ok" },
+                    { nombre: "Router 4G | Portátiles", cantidad: "1 ud",  estado: "low" },
+                ]
+            },
+            "cajon-izq-3": {
+                text: "Contiene:",
+                items: [
+                    { nombre: "Tornillería",  cantidad: "3 uds", estado: "ok"  },
+                ]
+            },
+            "cajon-cen-1": {
+                text: "Contiene:",
+                items: [
+                    { nombre: "Tarjetas gráficas", cantidad: "5 uds", estado: "ok" },
+                    { nombre: "Tarjetas de red",              cantidad: "20 uds", estado: "ok" },
+                ]
+            },
+            "cajon-cen-2": {
+                text: "Contiene:",
+                items: [
+                    { nombre: "Pasta térmica",    cantidad: "1 ud",  estado: "low" },
+                    { nombre: "Fuentes de alimentación", cantidad: "4 uds", estado: "ok"  },
+                ]
+            },
+            "cajon-cen-3": {
+                text: "Contiene:",
+                items: [
+                    { nombre: "Destornilladores",     cantidad: "2 uds", estado: "low"   },
+                    { nombre: "Tijeras",    cantidad: "0 uds", estado: "empty" },
+                ]
+            },
+            "cajon-der-1": {
+                text: "Contiene:",
+                items: [
+                    { nombre: "Discos Duros", cantidad: "2 uds", estado: "low" },
+                    { nombre: "Memorias RAM",  cantidad: "3 uds", estado: "ok"  },
+                ]
+            },
+            "cajon-der-2": {
+                text: "Contiene:",
+                items: [
+                    { nombre: "Material soldadura: soportes, soldadores...",  cantidad: "6 uds", estado: "ok"  },
+                ]
+            },
+            "cajon-der-3": {
+                text: "Contiene:",
+                items: [
+                    { nombre: "Cableado (SATA. VGA, alimentación)", cantidad: "8 uds",  estado: "ok"  },
+
+                ]
+            },
+            "puerta-dbl-izq": {
+                text: "Contiene:",
+                items: [
+                    { nombre: "Tarjetas Gráficas", cantidad: "3 uds", estado: "ok"  },
+                ]
+            },
+            "puerta-cen-inf": {
+                text: "Contiene:",
+                items: [
+                    { nombre: "Crimpadoras",    cantidad: "4 uds", estado: "ok"    },
+                ]
+            },
+            "puerta-dbl-der": {
+                text: "Contiene:",
+                items: [
+                    { nombre: "Material de soldadura",               cantidad: "10 uds", estado: "ok"    },
+                    { nombre: "Regletas",                 cantidad: "9 uds",  estado: "ok"    },
+                ]
+            },
+            "estante-a1": {
+                text: "Estante A1 — Fila superior izquierda. Contiene:",
+                items: [
+                    { nombre: "Cable de red 1m",  cantidad: "10 uds", estado: "ok" },
+                    { nombre: "Cable de red 3m",  cantidad: "5 uds",  estado: "ok" },
+                ]
+            },
+            "estante-a2": {
+                text: "Estante A2 — Fila superior centro-izquierda.",
+                items: [
+                    { nombre: "Cable USB-A a USB-B", cantidad: "7 uds", estado: "ok"  },
+                    { nombre: "Cable USB-C",         cantidad: "2 uds", estado: "low" },
+                ]
+            },
+            "estante-a3": {
+                text: "Estante A3 — Fila superior centro-derecha.",
+                items: [
+                    { nombre: "Regleta 6 enchufes", cantidad: "3 uds", estado: "ok"  },
+                    { nombre: "Alargador 5m",       cantidad: "1 ud",  estado: "low" },
+                ]
+            },
+            "estante-a4": {
+                text: "Estante A4 — Fila superior derecha.",
+                items: [
+                    { nombre: "Router WiFi",  cantidad: "1 ud",  estado: "low"   },
+                    { nombre: "Access Point", cantidad: "0 uds", estado: "empty" },
+                ]
+            },
+            "estante-b1": {
+                text: "Estante B1 — Segunda fila izquierda.",
+                items: [
+                    { nombre: "Caja herramientas pequeña", cantidad: "1 ud",  estado: "ok" },
+                    { nombre: "Alicates",                  cantidad: "2 uds", estado: "ok" },
+                ]
+            },
+            "estante-b2": {
+                text: "Estante B2 — Segunda fila centro-izquierda.",
+                items: [
+                    { nombre: "Maletín transporte portátil", cantidad: "2 uds", estado: "ok" },
+                ]
+            },
+            "estante-b3": {
+                text: "Estante B3 — Segunda fila centro-derecha.",
+                items: [
+                    { nombre: "Switch 16 puertos", cantidad: "1 ud",  estado: "low"   },
+                    { nombre: "Patch panel 24p",   cantidad: "0 uds", estado: "empty" },
+                ]
+            },
+            "estante-b4": {
+                text: "Estante B4 — Segunda fila derecha.",
+                items: [
+                    { nombre: "UPS / SAI 600VA", cantidad: "1 ud", estado: "low" },
+                ]
+            },
+        };
+
+        // ============================================================
+
+        let currentZoneId = null;
+        let currentZoneEl = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            Object.entries(notes).forEach(([id, data]) => {
+                if (data.items && data.items.length > 0) {
+                    const dot = document.getElementById('dot-' + id);
+                    if (dot) dot.classList.add('visible');
+                }
+            });
+        });
+
+        function selectZone(el) {
+            if (currentZoneEl) currentZoneEl.classList.remove('active');
+
+            const id   = el.dataset.id;
+            const name = el.dataset.name;
+
+            if (currentZoneId === id) { closePanel(); return; }
+
+            el.classList.add('active');
+            currentZoneId = id;
+            currentZoneEl = el;
+
+            document.getElementById('placeholder').style.display = 'none';
+            const card = document.getElementById('note-card');
+            card.classList.remove('visible');
+            void card.offsetWidth;
+            card.classList.add('visible');
+
+            document.getElementById('element-name').textContent = name;
+
+            const data = notes[id] || { text: '', items: [] };
+            const div  = document.getElementById('note-textarea');
+            const stockList = document.getElementById('stock-list');
+
+            if (data.text && data.text.trim()) {
+                div.textContent = data.text;
+                div.classList.remove('empty');
+            } else {
+                div.textContent = 'Sin descripción para esta zona.';
+                div.classList.add('empty');
+            }
+
+            // Renderizar lista de stock
+            if (data.items && data.items.length > 0) {
+                stockList.innerHTML = data.items.map(item => {
+                    return `<li><span>${escapeHtml(item.nombre)}</span></li>`;
+                }).join('');
+            } else {
+                stockList.innerHTML = '';
+            }
+        }
+
+        function closePanel() {
+            if (currentZoneEl) currentZoneEl.classList.remove('active');
+            currentZoneId = null;
+            currentZoneEl = null;
+            document.getElementById('note-card').classList.remove('visible');
+            document.getElementById('placeholder').style.display = '';
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        }
+    </script>
+
+</body>
+</html>

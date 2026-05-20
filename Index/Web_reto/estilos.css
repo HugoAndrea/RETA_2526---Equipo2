@@ -82,8 +82,8 @@ nav a:hover {
 /* ===== CONTENEDOR PRINCIPAL ===== */
 .contenedor-principal {
     display: flex;
-    flex-wrap: wrap; /* AÑADIDO: permite que se apile en móvil */
-    max-width: 1200px;
+    flex-wrap: wrap; /* permite que se apile en móvil */
+    max-width: 2200px;
     margin: 10px auto;
     gap: 10px;
     padding: 0 20px;
@@ -91,7 +91,7 @@ nav a:hover {
 
 main {
     flex: 3;
-    min-width: 280px; /* AÑADIDO: evita que se haga demasiado pequeño */
+    min-width: 280px; /* evita que se haga demasiado pequeño */
     background-color: #3b82f6;
     padding: 20px;
     border-radius: 10px;
@@ -502,18 +502,18 @@ article a:hover {
         height: auto;
     }
 
-    /* Nav: vertical en móvil */
+    /* Nav: horizontal en móvil */
     nav ul {
-       
-        align-items: center;
+        flex-wrap: wrap;
+        justify-content: center;
     }
 
     .Inicio,
     .Contacto,
     .Sobre_nosotros,
     .Plano {
-        width: 20px;
-        height: 10px;
+        width: 80px;
+        height: 60px;
     }
 
     /* Contenedor principal: apilado en móvil */
