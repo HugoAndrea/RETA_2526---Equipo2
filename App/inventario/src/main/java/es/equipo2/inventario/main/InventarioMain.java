@@ -34,6 +34,21 @@ public class InventarioMain {
         }
         
         AccesoBase.getInstance().inicializar();
+ 
+        // TEMPORAL: genera el hash de 'admin1234' y actualiza la BD automaticamente
+        try {
+            String hash = Encriptador.hashear("admin1234");
+            System.out.println(">>> HASH GENERADO: " + hash);
+            java.sql.Connection conn = AccesoBase.getInstance().getConn();
+            java.sql.PreparedStatement ps = conn.prepareStatement(
+                "UPDATE usuario SET contrasenia = ? WHERE nombre = 'admin'");
+            ps.setString(1, hash);
+            int rows = ps.executeUpdate();
+            System.out.println(">>> USUARIOS ACTUALIZADOS: " + rows);
+            ps.close();
+        } catch (Exception e) {
+            System.out.println(">>> ERROR actualizando hash: " + e.getMessage());
+        }
 
         // 2. Cerrar el túnel cuando se cierre la aplicación
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {

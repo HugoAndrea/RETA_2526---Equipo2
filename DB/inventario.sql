@@ -16,8 +16,8 @@ alter table usuario
 modify contrasenia varchar(255); /* Aumenté los caracteres que puede tener las contraseñas para permitir 
                                     la encriptación de estas.*/
 
-insert into usuario (idUsuario,nombre,contrasenia,rol) -- inserción de una fila en la tabla usuario
-values (1,'admin','admin123','administrador');
+-- insert into usuario (idUsuario,nombre,contrasenia,rol) -- inserción de una fila en la tabla usuario
+-- values (1,'admin','admin123','administrador');
 
 create table visitas(-- Control de accesos al sistema, permite saber quién ha accedidio y cuando.
 	numVisita int primary key auto_increment not null,

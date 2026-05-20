@@ -37,16 +37,22 @@ public class UsuarioDAO {
     */
     public Usuario login(String user, String passwordPlano) {
         String sql = "SELECT * FROM usuario WHERE nombre = ?";
- 
+
+        System.out.println(">>> DAO LOGIN: user='" + user + "'");
+
         try (PreparedStatement ps = getConn().prepareStatement(sql)) {
             ps.setString(1, user);
             ResultSet rs = ps.executeQuery();
- 
+
             if (rs.next()) {
                 String hashGuardado = rs.getString("contrasenia");
- 
-                // Comparamos la contrasenia introducida con el hash de la BD
-                if (Encriptador.comprobar(passwordPlano, hashGuardado)) {
+                System.out.println(">>> DAO LOGIN: encontrado, hashLen=" + (hashGuardado != null ? hashGuardado.length() : "null"));
+                System.out.println(">>> DAO LOGIN: hash='" + hashGuardado + "'");
+
+                boolean ok = Encriptador.comprobar(passwordPlano, hashGuardado);
+                System.out.println(">>> DAO LOGIN: comprobar=" + ok);
+
+                if (ok) {
                     return new Usuario(
                         rs.getInt("idUsuario"),
                         rs.getString("nombre"),
@@ -54,8 +60,11 @@ public class UsuarioDAO {
                         rs.getString("rol")
                     );
                 }
+            } else {
+                System.out.println(">>> DAO LOGIN: usuario NO encontrado en BD");
             }
         } catch (SQLException e) {
+            System.out.println(">>> DAO LOGIN ERROR: " + e.getMessage());
             Teclado.error("Error en login: " + e.getMessage());
         }
         return null;

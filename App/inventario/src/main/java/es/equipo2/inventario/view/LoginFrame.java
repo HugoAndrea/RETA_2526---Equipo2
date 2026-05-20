@@ -177,6 +177,25 @@ public class LoginFrame extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(LoginFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(LoginFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(LoginFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(LoginFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -188,13 +207,11 @@ public class LoginFrame extends javax.swing.JFrame {
     private void intentarLogin(){
         String user = txtUsuario.getText().trim();
         String pass = new String(txtPassword.getPassword());
-        
+
+        System.out.println(">>> LOGIN: usuario='" + user + "' pass='" + pass + "' passLen=" + pass.length());
+
         if (user.isEmpty() || pass.isEmpty()) {
             JOptionPane.showMessageDialog(this,"Introduce usuario y contrasena ", "Campos vacios ", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        if (!Teclado.nombreValido(user)) {
-            JOptionPane.showMessageDialog(this, "El nombre de usuario no es valido ", "Aviso ", JOptionPane.WARNING_MESSAGE);
             return;
         }
         if (controller.login(user, pass)) {
