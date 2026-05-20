@@ -34,11 +34,19 @@ public class ObjetoDAO {
      * Inserta un objeto nuevo.
      */
     public boolean insertar(Objeto o) {
+        // Intentamos primero con descripcion y observaciones
         String sql = "INSERT INTO objetoInventario "
                    + "(nombre, descripcion, cantidad, fechaAlta, observaciones, "
                    + " idUbicacion, idCategoria) "
                    + "VALUES (?, ?, ?, ?, ?, ?, ?)";
- 
+
+        System.out.println(">>> DEBUG insertar(): nombre=" + o.getNombre()
+            + " desc=" + o.getDescripcion()
+            + " cant=" + o.getCantidad()
+            + " fecha=" + o.getFechaAlta()
+            + " idUbi=" + o.getIdUbicacion()
+            + " idCat=" + o.getIdCategoria());
+
         try (PreparedStatement ps = getConn().prepareStatement(sql)) {
             ps.setString(1, o.getNombre());
             ps.setString(2, o.getDescripcion());
@@ -47,16 +55,51 @@ public class ObjetoDAO {
                 ? Date.valueOf(o.getFechaAlta())
                 : Date.valueOf(java.time.LocalDate.now()));
             ps.setString(5, o.getObservaciones());
- 
+
             if (o.getIdUbicacion() > 0) ps.setInt(6, o.getIdUbicacion());
             else                         ps.setNull(6, Types.INTEGER);
- 
+
             if (o.getIdCategoria() > 0) ps.setInt(7, o.getIdCategoria());
             else                         ps.setNull(7, Types.INTEGER);
- 
-            return ps.executeUpdate() > 0;
+
+            boolean ok = ps.executeUpdate() > 0;
+            System.out.println(">>> DEBUG insertar() resultado: " + ok);
+            return ok;
         } catch (SQLException e) {
+            System.out.println(">>> DEBUG insertar() excepcion: " + e.getMessage());
+            // Si falla por columnas inexistentes, reintentamos sin descripcion/observaciones
+            if (e.getMessage() != null && e.getMessage().contains("Unknown column")) {
+                System.out.println(">>> Reintentando sin columnas opcionales...");
+                return insertarBasico(o);
+            }
             Teclado.error("Error al insertar objeto: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /** Fallback: inserta solo las columnas obligatorias si descripcion/observaciones no existen aun en la BD */
+    private boolean insertarBasico(Objeto o) {
+        String sql = "INSERT INTO objetoInventario "
+                   + "(nombre, cantidad, fechaAlta, idUbicacion, idCategoria) "
+                   + "VALUES (?, ?, ?, ?, ?)";
+        try (PreparedStatement ps = getConn().prepareStatement(sql)) {
+            ps.setString(1, o.getNombre());
+            ps.setInt(2, o.getCantidad() > 0 ? o.getCantidad() : 1);
+            ps.setDate(3, Date.valueOf(o.getFechaAlta() != null
+                    ? o.getFechaAlta() : java.time.LocalDate.now()));
+
+            if (o.getIdUbicacion() > 0) ps.setInt(4, o.getIdUbicacion());
+            else                         ps.setNull(4, Types.INTEGER);
+
+            if (o.getIdCategoria() > 0) ps.setInt(5, o.getIdCategoria());
+            else                         ps.setNull(5, Types.INTEGER);
+
+            boolean ok = ps.executeUpdate() > 0;
+            System.out.println(">>> insertarBasico() resultado: " + ok);
+            return ok;
+        } catch (SQLException e) {
+            System.out.println(">>> insertarBasico() excepcion: " + e.getMessage());
+            Teclado.error("Error al insertar objeto (basico): " + e.getMessage());
             return false;
         }
     }
