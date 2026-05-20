@@ -3,11 +3,228 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Salón de la Fama - Planetas más importantes del universo">
-    <meta name="keywords" content="planetas, sistema solar, exploración, astronomía">
+    <meta name="description" content="Plano interactivo del taller">
+    <meta name="keywords" content="plano, taller, informática, IES Miguel Herrero">
     <meta name="author" content="Tu Nombre">
     <title>Plano del taller</title>
     <link rel="stylesheet" href="estilos.css">
+
+    <style>
+        /* ===== PLANO INTERACTIVO ===== */
+        .plano-workspace {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .svg-wrapper {
+            flex: 1 1 auto;
+            background: #ffffff;
+            border: 2px solid #0f172a;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        }
+
+      .svg-wrapper svg {
+            display: block;
+            width: 100%;
+            max-width: 1000px;
+            height: auto;
+      }
+        /* Zonas clicables */
+        .zone {
+            cursor: pointer;
+        }
+
+        .zone rect,
+        .zone ellipse,
+        .zone path {
+            transition: fill 0.15s;
+        }
+
+        .zone:hover rect,
+        .zone:hover ellipse {
+            fill: #dbeafe !important;
+        }
+
+        .zone.active rect,
+        .zone.active ellipse {
+            fill: #93c5fd !important;
+            stroke: #1d4ed8 !important;
+            stroke-width: 2px;
+        }
+
+        .note-dot {
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .note-dot.visible { opacity: 1; }
+
+        /* Panel de notas */
+        .notes-panel {
+            flex: 1;
+            max-width: 350px;
+        }
+
+        .panel-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            height: 280px;
+            width: 180px;
+            border: 2px dashed #3b82f6;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 0.85rem;
+            text-align: center;
+            padding: 20px;
+            background: rgba(59,130,246,0.2);
+        }
+
+        .note-card {
+            display: none;
+            flex-direction: column;
+            background: #1e3a5f;
+            height: 400px;
+            border: 2px solid #3b82f6;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+            animation: slideIn 0.2s ease;
+        }
+
+        .note-card.visible { display: flex; }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(10px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+
+        .note-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: #0f172a;
+        }
+
+        .note-card-header .label {
+            font-size: 0.65rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #93c5fd;
+        }
+
+        .note-card-header .element-name {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #ffffff;
+            margin-top: 2px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #93c5fd;
+            cursor: pointer;
+            font-size: 1.2rem;
+            line-height: 1;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background 0.15s;
+        }
+        .close-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+        .note-textarea {
+            font-family: Arial, sans-serif;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            color: #ffffff;
+            background: #1e3a5f;
+            border: none;
+            min-height: 120px;
+            padding: 14px;
+            width: 100%;
+        }
+
+        .note-textarea.empty {
+            color: #64748b;
+            font-style: italic;
+        }
+
+        /* Resumen */
+        .plano-summary {
+            margin-top: 20px;
+        }
+
+        .plano-summary h3 {
+            color: #000000;
+            font-size: 0.85rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .summary-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .summary-item {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            background: #1e3a5f;
+            border: 1px solid #3b82f6;
+            border-radius: 6px;
+            padding: 8px 12px;
+        }
+
+        .summary-item .tag {
+            font-size: 0.68rem;
+            color: #93c5fd;
+            background: #0f172a;
+            padding: 2px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+            margin-top: 2px;
+        }
+
+        .summary-item .text {
+            font-size: 0.8rem;
+            line-height: 1.5;
+            color: #ffffff;
+        }
+
+        .empty-summary {
+            font-size: 0.8rem;
+            color: #000000;
+        }
+
+        .plano-hint {
+            font-size: 0.8rem;
+            color: #ffffff;
+            margin-bottom: 12px;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 1200px) {
+            .plano-workspace {
+                flex-direction: column;
+            }
+            .svg-wrapper svg {
+                max-width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -18,7 +235,7 @@
         <ul>
             <li><a href="index.html"><img src="inicio.png" alt="Inicio" class="Inicio"></a></li>
             <li><a href="Plano.html"><img src="Plano.png" alt="Plano" class="Plano"></a></li>
-            <li><a href="Sobre_nosotros.html"><img src="Sobre_nosotros.png" alt="Sobre Nostros" class="Sobre_nosotros"></a></li>
+            <li><a href="Sobre_nosotros.html"><img src="Sobre_nosotros.png" alt="Sobre Nosotros" class="Sobre_nosotros"></a></li>
             <li><a href="Contacto.html"><img src="Contacto.png" alt="Contacto" class="Contacto"></a></li>
         </ul>
     </nav>
@@ -26,148 +243,350 @@
     <div class="contenedor-principal">
         <main>
             <article>
-                <h2>Planetas Destacados</h2>
-                <!-- Imagen inicial -->
-<img id="inicio" src="Plano_taller.png" alt="Inicio">
+                <h2>Plano Interactivo del Taller</h2>
+                <p class="plano-hint">Haz clic en cualquier elemento del plano para ver sus notas.</p>
 
-<!-- Plano interactivo -->
-<div id="planoContainer">
+                <!-- Workspace: SVG + panel de notas -->
+                <div class="plano-workspace">
 
-    <img id="plano" src="plano.jpg" alt="Plano">
+                    <!-- SVG Plano -->
+                    <div class="svg-wrapper">
+                        <svg
+                            version="1.1"
+                            viewBox="-0.5 -0.5 369 191"
+                            xmlns="http://www.w3.org/2000/svg">
 
-    <!-- Zona ordenadores -->
-    <div class="zona" style="top:120px; left:150px; width:200px; height:100px;">
+                            <!-- Suelo -->
+                            <g>
+                                <rect x="0" y="0" width="367" height="189"
+                                    fill="#f5f5f5" stroke="#000000" pointer-events="none"/>
+                            </g>
 
-        <div class="tooltip">
-            Zona de ordenadores del alumnado
-        </div>
+                            <!-- Zona 2: Zona inferior izquierda -->
+                            <g class="zone" data-id="zona-inf-izq" data-name="Armario Principal" onclick="selectZone(this)">
+                                <rect x="0" y="164" width="136" height="25"
+                                    fill="#ffffff" stroke="#000000" pointer-events="all"/>
+                            </g>
 
-    </div>
+                            <!-- Zona 3: Barra superior -->
+                            <g class="zone" data-id="barra-superior" data-name="Mesa Superior" onclick="selectZone(this)">
+                                <rect x="68.5" y="0" width="251" height="30"
+                                    fill="#ffffff" stroke="#000000" pointer-events="all"/>
+                            </g>
 
-    <!-- Zona profesor -->
-    <div class="zona" style="top:50px; left:500px; width:150px; height:120px;">
+                            <!-- Zona 4: Columna derecha -->
+                            <g class="zone" data-id="columna-derecha" data-name="Mesa Lateral Derecha" onclick="selectZone(this)">
+                                <rect x="336" y="29" width="31" height="122"
+                                    fill="#ffffff" stroke="#000000" pointer-events="all"/>
+                            </g>
 
-        <div class="tooltip">
-            Mesa del profesor y servidor
-        </div>
+                            <!-- Zona 5: Elipse central -->
+                            <g class="zone" data-id="elipse-central" data-name="Mesa Central" onclick="selectZone(this)">
+                                <ellipse cx="194" cy="90" rx="83" ry="33.5"
+                                    fill="#ffffff" stroke="#000000" pointer-events="all"/>
+                            </g>
 
-    </div>
+                            <!-- Zona 6: Zona inferior derecha -->
+                            <g class="zone" data-id="zona-inf-der" data-name="Mesa Inferior Derecha" onclick="selectZone(this)">
+                                <rect x="233" y="167.5" width="101" height="21.5"
+                                    fill="#ffffff" stroke="#000000" pointer-events="all"/>
+                            </g>
 
-</div>
+                            <!-- Zona 7: Bloque izquierdo -->
+                            <g class="zone" data-id="bloque-izquierdo" data-name="Mesa Izquierda" onclick="selectZone(this)">
+                                <rect x="0" y="69" width="21" height="67"
+                                    fill="#ffffff" stroke="#000000" pointer-events="all"/>
+                            </g>
+
+                            <!-- Zona 8: Armario/Rack -->
+                            <g class="zone" data-id="rack" data-name="Armario / Rack" onclick="selectZone(this)">
+                                <path d="M 325 0 L 325 0 L 367 0 L 367 0"
+                                    fill="#ffffff" stroke="#000000" stroke-miterlimit="10" pointer-events="all"/>
+                                <path d="M 325 0 L 325 26 L 367 26 L 367 0"
+                                    fill="#ffffff" stroke="#000000" stroke-miterlimit="10" pointer-events="all"/>
+                            </g>
+
+                            <!-- Puerta 1 -->
+                            <g class="zone" data-id="puerta-1" data-name="Puerta IF03" onclick="selectZone(this)">
+                                <rect x="177" y="164" width="24.5" height="5"
+                                    fill="#ffffff" stroke="#000000"
+                                    transform="rotate(90,189.25,177.02)" pointer-events="all"/>
+                                <path d="M 177 169 C 177 182.53 187.97 193.5 201.5 193.5 L 201.5 169"
+                                    fill="none" stroke="#000000" stroke-miterlimit="10"
+                                    transform="rotate(90,189.25,177.02)" pointer-events="all"/>
+                            </g>
+
+                            <!-- Puerta 2 -->
+                            <g class="zone" data-id="puerta-2" data-name="Puerta pasillo" onclick="selectZone(this)">
+                                <rect x="-0.01" y="26" width="24.5" height="5"
+                                    fill="#ffffff" stroke="#000000"
+                                    transform="rotate(-180,12.24,39.01)" pointer-events="all"/>
+                                <path d="M -0.01 31 C -0.01 44.53 10.96 55.5 24.49 55.5 L 24.49 31"
+                                    fill="none" stroke="#000000" stroke-miterlimit="10"
+                                    transform="rotate(-180,12.24,39.01)" pointer-events="all"/>
+                            </g>
+
+                            <!-- Puerta 3 -->
+                            <g class="zone" data-id="puerta-3" data-name="Puerta IF02" onclick="selectZone(this)">
+                                <rect x="16" y="0" width="23.82" height="5"
+                                    fill="#ffffff" stroke="#000000" pointer-events="all"/>
+                                <path d="M 16 5 C 16 18.16 26.66 28.82 39.82 28.82 L 39.82 5"
+                                    fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="all"/>
+                            </g>
+
+                            <!-- Indicadores de nota (puntos azules) -->
+                            <circle id="dot-zona-inf-izq"     class="note-dot" cx="68"  cy="176" r="5" fill="#3b82f6"/>
+                            <circle id="dot-barra-superior"   class="note-dot" cx="194" cy="15"  r="5" fill="#3b82f6"/>
+                            <circle id="dot-columna-derecha"  class="note-dot" cx="351" cy="90"  r="5" fill="#3b82f6"/>
+                            <circle id="dot-elipse-central"   class="note-dot" cx="194" cy="90"  r="5" fill="#3b82f6"/>
+                            <circle id="dot-zona-inf-der"     class="note-dot" cx="283" cy="178" r="5" fill="#3b82f6"/>
+                            <circle id="dot-bloque-izquierdo" class="note-dot" cx="10"  cy="103" r="5" fill="#3b82f6"/>
+                            <circle id="dot-rack"             class="note-dot" cx="346" cy="13"  r="5" fill="#3b82f6"/>
+                            <circle id="dot-puerta-1"         class="note-dot" cx="189" cy="185" r="5" fill="#3b82f6"/>
+                            <circle id="dot-puerta-2"         class="note-dot" cx="12"  cy="39"  r="5" fill="#3b82f6"/>
+                            <circle id="dot-puerta-3"         class="note-dot" cx="28"  cy="5"   r="5" fill="#3b82f6"/>
+                        </svg>
+                    </div>
+
+                    <!-- Panel de notas -->
+                    <div class="notes-panel">
+                        <div class="panel-placeholder" id="placeholder">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5"/>
+                                <path d="M15.5 3.5a2.121 2.121 0 013 3L12 13l-4 1 1-4 6.5-6.5z"/>
+                            </svg>
+                            Selecciona un elemento<br>del plano para ver sus notas
+                        </div>
+
+                        <div class="note-card" id="note-card">
+                            <div class="note-card-header">
+                                <div>
+                                    <div class="label">Elemento seleccionado</div>
+                                    <div class="element-name" id="element-name">—</div>
+                                </div>
+                                <button class="close-btn" onclick="closePanel()" title="Cerrar">✕</button>
+                            </div>
+                            <div class="note-textarea" id="note-textarea"></div>
+                       <a id="note-img-link" href="#" target="_blank" style="display:none; margin:0 14px 14px 14px;">
+    <img id="note-img"
+         style="display:none; width:300px;; height:200px; border-radius:8px; object-fit:cover; cursor:pointer; transition: opacity 0.2s;"
+         onmouseover="this.style.opacity='0.5'"
+         onmouseout="this.style.opacity='1'"
+         alt="Foto del elemento">
+</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resumen de notas -->
+                <div class="plano-summary">
+               
+                 
+                </div>
+
             </article>
         </main>
 
         <aside>
-            <h3>Dato Curioso</h3>
-            <p>Muchos aficionados consideran que la evolución del baloncesto se divide en varias eras: la de Jordan, la de Kobe y la era moderna liderada por LeBron y Curry.</p>
-            <p>La grandeza se mide tanto por títulos como por legado.</p>
+            <h3>Sobre el plano</h3>
+            <p>Haz clic en cualquier zona del plano para ver información sobre ese elemento del taller, estos contienen tanto texto como imágenes las cuales algunas son interactivas.</p>
+            
+            <img src="foto_taller.png" alt="Foto del taller">
         </aside>
     </div>
 
- <footer class="footer-custom">
-
+    <footer class="footer-custom">
         <div class="footer-container">
-
-            <!-- Logo -->
             <div class="footer-column logo-column">
-
-                <img
-                    src="GC.png"
-                    alt="Gobierno de Cantabria"
-                    class="footer-logo"
-                >
-
+                <img src="GC.png" alt="Gobierno de Cantabria" class="footer-logo">
             </div>
-
-            <!-- Información -->
             <div class="footer-column">
-
                 <h3>INFORMACIÓN</h3>
-
                 <div class="title-line"></div>
-
                 <ul class="footer-links">
                     <li><a href="https://www.google.com/maps/place/IES+Miguel+Herrero+Pereda/@43.3524476,-4.0650765,820m/data=!3m2!1e3!4b1!4m6!3m5!1s0xd493e18f1f29733:0x1420ebdf20460746!8m2!3d43.3524437!4d-4.0625016!16s%2Fg%2F119v3lm7j?entry=ttu&g_ep=EgoyMDI2MDUwNi4wIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noopener noreferrer">Mapa del sitio</a></li>
                     <li><a href="https://www.educantabria.es/aviso-legal" target="_blank" rel="noopener noreferrer">Aviso Legal</a></li>
                     <li><a href="https://www.educantabria.es/proteccion-datos" target="_blank" rel="noopener noreferrer">Protección de datos</a></li>
                     <li><a href="https://www.educantabria.es/cookies" target="_blank" rel="noopener noreferrer">Política de Cookies</a></li>
                 </ul>
-
             </div>
-
-            <!-- Contacto -->
             <div class="footer-column">
-
                 <h3>CONTACTO</h3>
-
                 <div class="title-line"></div>
-
                 <div class="contact-item">
                     <span class="icon">📍</span>
-
-                    <p>
-                        P.º de Julio Hauzeur, 59, 39300,
-                        <br>
-                        Torrelavega, Cantabria
-                    </p>
+                    <p>P.º de Julio Hauzeur, 59, 39300,<br>Torrelavega, Cantabria</p>
                 </div>
-
                 <div class="contact-item">
                     <span class="icon">📞</span>
                     <p>942 88 24 98</p>
                 </div>
-
                 <div class="contact-item">
                     <span class="icon">✉️</span>
                     <p>ies.miguel.herrero.pereda@educantabria.es</p>
                 </div>
-
             </div>
-
         </div>
 
         <div class="footer-divider"></div>
 
-        <!-- Parte inferior -->
         <div class="footer-bottom">
-
             <div class="footer-brand">
-
-                <img
-                    src="Educantabria.png"
-                    alt="Educantabria"
-                >
-
+                <img src="Educantabria.png" alt="Educantabria">
             </div>
-
             <div class="footer-copy">
                 © Copyright 2026. Todos los derechos reservados.
             </div>
+            <div class="social-links">
+                <a href="https://www.facebook.com/p/Ies-Miguel-Herrero-Pereda-100087928148760/" class="social-btn fb" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
+                    <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                </a>
+                <a href="https://www.youtube.com/@departamentoinformaticaies2288" class="social-btn yt" aria-label="YouTube" target="_blank" rel="noopener noreferrer">
+                    <svg viewBox="0 0 24 24"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58a2.78 2.78 0 0 0 1.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58zM9.75 15.02V8.98L15.5 12l-5.75 3.02z"/></svg>
+                </a>
+                <a href="https://www.instagram.com/ies.miguelherrero/" class="social-btn ig" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
+                    <svg viewBox="0 0 24 24">
+                        <rect x="2" y="2" width="20" height="20" rx="5" fill="none" stroke="white" stroke-width="2"/>
+                        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" fill="none" stroke="white" stroke-width="2"/>
+                        <circle cx="17.5" cy="6.5" r="1.5" fill="white"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </footer>
 
-<div class="social-links">
-  <a href="https://www.facebook.com/p/Ies-Miguel-Herrero-Pereda-100087928148760/"
-     class="social-btn fb" aria-label="Facebook"
-     target="_blank" rel="noopener noreferrer">
-    <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-  </a>
-  <a href="https://www.youtube.com/@departamentoinformaticaies2288"
-     class="social-btn yt" aria-label="YouTube"
-     target="_blank" rel="noopener noreferrer">
-    <svg viewBox="0 0 24 24"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58a2.78 2.78 0 0 0 1.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58zM9.75 15.02V8.98L15.5 12l-5.75 3.02z"/></svg>
-  </a>
-  <a href="https://www.instagram.com/ies.miguelherrero/"
-     class="social-btn ig" aria-label="Instagram"
-     target="_blank" rel="noopener noreferrer">
-    <svg viewBox="0 0 24 24">
-      <rect x="2" y="2" width="20" height="20" rx="5"
-            fill="none" stroke="white" stroke-width="2"/>
-      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"
-            fill="none" stroke="white" stroke-width="2"/>
-      <circle cx="17.5" cy="6.5" r="1.5" fill="white"/>
-    </svg>
-  </a>
-</div>
-</div>
-</footer>
+    <script>
+        // ============================================================
+        // EDITA AQUÍ LAS NOTAS DE CADA ELEMENTO DEL PLANO
+        // Escribe el texto entre las comillas de cada elemento.
+        // Deja las comillas vacías "" si no quieres nota para ese elemento.
+        // ============================================================
+        
+       
+
+        const notes = {
+            "zona-inf-izq":     {text: "Armario principal de almacenamiento en el cual puedes encontrar cables, placas base, procesadores y demas componentes informáticos.", img: "armario_principal.png", link: "Inventario_armario.html"},   // Zona Inferior Izquierda
+            "barra-superior":   {text: "Mesa donde se encuentran ordenadores y monitores en los cuales se pueden hacer pruebas.\nSi quieres ver una vista detallada del plano del taller en 2D como en 3d haz clic en la imágen.", img: "mesa_superior.png", link: "https://floorplanner.com/projects/185616421/editor"},   // Barra Superior
+            "columna-derecha":  {text: "Mesa en la cual se hacen preubas con equipos o zona de trabajo para algunos profesores y alumnos.", img: "mesa_ventana.png", link: "https://floorplanner.com/projects/185616421/editor"}, // Columna Derecha
+            "elipse-central":   {text: "Mesa en la cual se puede trabajar con los ordenadores de diferentes zonas o donde pueden trabajar los profesores del departamento de informática.\nSi quieres ver una vista detallada del plano del taller en 2D como en 3d haz clic en la imágen.", img: "mesa_central.png", link: "https://floorplanner.com/projects/185616421/editor"},   // Elipse Central (mesa central)
+            "zona-inf-der":     {text: "Zona donde hay monitores de repuesto al igual que teclados y ratones de repuesto para usar en las diferentes zonas del taller.\nSi quieres ver una vista detallada del plano del taller en 2D como en 3d haz clic en la imágen.", img: "mesa_inferior_derecha.png", link: "https://floorplanner.com/projects/185616421/editor"},   // Zona Inferior Derecha
+            "bloque-izquierdo": {text: "Mesa en la cual se encuentran diferentes torres y componentes de repuesto.\nSi quieres ver una vista detallada del plano del taller en 2D como en 3d haz clic en la imágen.", img: "mesa_izq.png", link: "https://floorplanner.com/projects/185616421/editor"},   // Bloque Izquierdo
+            "rack":             {text: "Estructura en la cual se encuentran switches que proveen de conexion a internet a los diferentes equipos informáticos del taller.", img: ""},  // Armario / Rack
+            "puerta-1":         {text: "Puerta de acceso desde el aula IF03", img: ""},   // Puerta 1
+            "puerta-2":         {text: "Puerta de acceso desde el pasillo", img: ""},   // Puerta 2
+            "puerta-3":         {text: "Puerta de acceso desde el aula IF02", img: ""},   // Puerta 3
+        };
+        
+        // ============================================================
+
+        let currentZoneId  = null;
+        let currentZoneEl  = null;
+
+        // Activar puntos en elementos que ya tienen nota al cargar
+        document.addEventListener('DOMContentLoaded', () => {
+            Object.entries(notes).forEach(([id, text]) => {
+                if (text.trim().length > 0) {
+                    const dot = document.getElementById('dot-' + id);
+                    if (dot) dot.classList.add('visible');
+                }
+            });
+            renderSummary();
+        });
+
+        function selectZone(el) {
+    if (currentZoneEl) currentZoneEl.classList.remove('active');
+
+    const id   = el.dataset.id;
+    const name = el.dataset.name;
+
+    if (currentZoneId === id) { closePanel(); return; }
+
+    el.classList.add('active');
+    currentZoneId = id;
+    currentZoneEl = el;
+
+    document.getElementById('placeholder').style.display = 'none';
+    const card = document.getElementById('note-card');
+    card.classList.remove('visible');
+    void card.offsetWidth;
+    card.classList.add('visible');
+
+    document.getElementById('element-name').textContent = name;
+
+    const note = notes[id] || { text: '', img: '' };
+    const div  = document.getElementById('note-textarea');
+    const imgEl = document.getElementById('note-img');
+    const linkEl = document.getElementById('note-img-link');
+
+    if (note.img.trim()) {
+        imgEl.src = note.img;
+        if (note.link.trim()) {
+            linkEl.href = note.link;
+            linkEl.style.display = 'block';
+            linkEl.title = 'Ver mas información';
+        } else {
+            linkEl.href = '#';
+            linkEl.style.display = 'block';
+            linkEl.removeAttribute('href');
+        }
+        imgEl.style.display = 'block';
+        } else {
+            imgEl.style.display = 'none';
+            linkEl.style.display = 'none';
+        
+    }
+
+    // Texto
+    if (note.text.trim()) {
+        div.textContent = note.text;
+        div.classList.remove('empty');
+    } else {
+        div.textContent = 'Sin nota. Edita el objeto notes en el HTML para añadir información.';
+        div.classList.add('empty');
+    }
+
+    // Imagen
+    if (note.img.trim()) {
+        imgEl.src = note.img;
+        imgEl.style.display = 'block';
+    } else {
+        imgEl.src = '';
+        imgEl.style.display = 'none';
+    }
+}
+
+        function closePanel() {
+            if (currentZoneEl) currentZoneEl.classList.remove('active');
+            currentZoneId = null;
+            currentZoneEl = null;
+            document.getElementById('note-card').classList.remove('visible');
+            document.getElementById('placeholder').style.display = '';
+        }
+
+    function renderSummary() {
+        const list    = document.getElementById('summary-list');
+        const entries = Object.entries(notes).filter(([, v]) => v.text.trim().length > 0);
+
+        if (entries.length === 0) {
+        list.innerHTML = '<p class="empty-summary">Aún no hay notas. Edita el objeto <code>notes</code> en el HTML.</p>';
+        return;
+    }
+
+        const zones   = document.querySelectorAll('.zone');
+        const nameMap = {};
+        zones.forEach(z => { nameMap[z.dataset.id] = z.dataset.name; });
+
+        list.innerHTML = entries.map(([id, note]) => `
+        <div class="summary-item">
+            <span class="tag">${nameMap[id] || id}</span>
+            <span class="text">${escapeHtml(note.text)}</span>
+        </div>
+    `).join('');
+}
+
+        function escapeHtml(str) {
+            return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        }
+    </script>
 </body>
 </html>
