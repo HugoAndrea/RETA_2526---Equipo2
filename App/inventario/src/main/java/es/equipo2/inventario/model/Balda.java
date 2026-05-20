@@ -50,11 +50,7 @@ public class Balda {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Balda: \n");
-        sb.append("Numero Balda: ").append(numBalda).append("\n");
-        sb.append("Id Armario: ").append(idArmario).append("\n");
-        return sb.toString();
+        return "Balda " + idBalda + " - " + numBalda;
     }
     
     

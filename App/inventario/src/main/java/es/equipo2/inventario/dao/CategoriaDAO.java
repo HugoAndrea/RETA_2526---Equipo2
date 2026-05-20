@@ -23,7 +23,7 @@ import java.util.List;
 public class CategoriaDAO {
     
     // otra forma de hacer la conexion en java
-    private Connection conn = AccesoBase.getInstance().getConn();
+    private Connection getConn() { return AccesoBase.getInstance().getConn(); }
     
     /**
      * 
@@ -33,7 +33,7 @@ public class CategoriaDAO {
         List<Categoria> lista = new ArrayList<>();
         String sql = "SELECT * FROM categoria ORDER BY nombre";
         
-        try(Statement st = conn.createStatement()){
+        try(Statement st = getConn().createStatement()){
             ResultSet rs = st.executeQuery(sql);
             while(rs.next()){
                 lista.add(new Categoria(

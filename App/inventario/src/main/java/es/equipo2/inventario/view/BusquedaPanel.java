@@ -91,7 +91,7 @@ public class BusquedaPanel extends javax.swing.JPanel {
 
         // --- Cabecera + filtros en el NORTH ---
         JPanel norte = new JPanel(new BorderLayout());
-        norte.add(Estilo.barraHeader("🔍  Busqueda y Localizacion"), BorderLayout.NORTH);
+        norte.add(Estilo.barraHeader("Busqueda y Localizacion"), BorderLayout.NORTH);
 
         JPanel filtros = new JPanel(new GridBagLayout());
         filtros.setBackground(Estilo.BLANCO);
@@ -108,9 +108,9 @@ public class BusquedaPanel extends javax.swing.JPanel {
         txtCodigo = Estilo.campo(8);
         txtCategoria = Estilo.campo(14);
         txtEstado = Estilo.campo(14);
-        btnBuscar = Estilo.botonPrimario("🔍  Buscar");
-        btnLimpiar = Estilo.botonAdvertencia("✕  Limpiar");
-        btnLocalizar = Estilo.boton("🌐  Ver en mapa web", new Color(50, 120, 80));
+        btnBuscar = Estilo.botonPrimario("Buscar");
+        btnLimpiar = Estilo.botonAdvertencia("Limpiar");
+        btnLocalizar = Estilo.boton("Ver en mapa web", new Color(50, 120, 80));
 
         // Fila etiquetas
         g.gridy = 0;

@@ -22,7 +22,7 @@ import java.util.List;
  * listar todo();
  */
 public class ArmarioDAO {
-    private Connection conn = AccesoBase.getInstance().getConn();
+    private Connection getConn() { return AccesoBase.getInstance().getConn(); }
     
     /**
      * 
@@ -32,7 +32,7 @@ public class ArmarioDAO {
         List<Armario> lista = new ArrayList<>();
         String sql = "SELECT * FROM armario ORDER BY nombre";
         
-        try(Statement st = conn.createStatement()){
+        try(Statement st = getConn().createStatement()){
             ResultSet rs = st.executeQuery(sql);
             
             while(rs.next()){

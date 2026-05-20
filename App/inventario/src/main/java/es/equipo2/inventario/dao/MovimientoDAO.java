@@ -24,8 +24,8 @@ import java.util.List;
  */
 public class MovimientoDAO {
     
-    private Connection conn = AccesoBase.getInstance().getConn();
-
+    private Connection getConn() { return AccesoBase.getInstance().getConn(); }
+    
     /**
      *
      * @param m insertar un nuevo objeto
@@ -35,7 +35,7 @@ public class MovimientoDAO {
         String sql = "INSERT INTO movimiento (tipo, cantidad, fecha, idUsuario, idObjetoInventario)"
                 + "VALUES (?,?,?,?,?)";
         
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = getConn().prepareStatement(sql)) {
             ps.setString(1, m.getTipo().name());
             ps.setInt(2, m.getCantidad());
             ps.setDate(3, Date.valueOf(m.getFecha()));
@@ -62,7 +62,7 @@ public class MovimientoDAO {
                 + "JOIN objetoInventario o ON m.idObjetoInventario = o.idObjetoInventario "
                 + "ORDER BY m.fecha DESC";
         
-        try (Statement st = conn.createStatement()) {
+        try (Statement st = getConn().createStatement()) {
             ResultSet rs = st.executeQuery(sql);
             while (rs.next()) {
                 Movimiento m = new Movimiento(
@@ -97,7 +97,7 @@ public class MovimientoDAO {
                    + "WHERE m.idObjetoInventario = ? "
                    + "ORDER BY m.fecha DESC";
         
-        try(PreparedStatement ps = conn.prepareStatement(sql)){
+        try(PreparedStatement ps = getConn().prepareStatement(sql)){
             ps.setInt(1, idObjeto);
             ResultSet rs = ps.executeQuery();
             

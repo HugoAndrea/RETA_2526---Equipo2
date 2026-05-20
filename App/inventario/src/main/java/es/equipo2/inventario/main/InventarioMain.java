@@ -12,7 +12,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 /**
- *
+ * Clase main que ejecuta todo el programas
  * @author DAW104
  */
 public class InventarioMain {

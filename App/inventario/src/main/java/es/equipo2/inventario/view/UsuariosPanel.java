@@ -42,18 +42,18 @@ public class UsuariosPanel extends javax.swing.JPanel {
 
         // --- Cabecera + toolbar en NORTH ---
         JPanel norte = new JPanel(new BorderLayout());
-        norte.add(Estilo.barraHeader("👥  Gestion de Usuarios"), BorderLayout.NORTH);
+        norte.add(Estilo.barraHeader("Gestion de Usuarios"), BorderLayout.NORTH);
 
         JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
         toolbar.setBackground(Estilo.BLANCO);
         toolbar.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Estilo.GRIS_LINEA));
 
-        btnAlta = Estilo.botonExito("＋  Nuevo usuario");
-        btnModificar = Estilo.botonAdvertencia("✎  Modificar");
-        btnEliminar = Estilo.botonPeligro("✕  Eliminar");
+        btnAlta = Estilo.botonExito("Nuevo usuario");
+        btnModificar = Estilo.botonAdvertencia("Modificar");
+        btnEliminar = Estilo.botonPeligro("Eliminar");
 
         JLabel aviso = new JLabel(
-                "⚠  Crear usuarios requiere confirmar tu contrasena de administrador");
+                "Crear usuarios requiere confirmar tu contrasena de administrador");
         aviso.setFont(new Font("Segoe UI", Font.ITALIC, 11));
         aviso.setForeground(new Color(150, 100, 20));
 
@@ -118,10 +118,10 @@ public class UsuariosPanel extends javax.swing.JPanel {
         pie.setBackground(Estilo.BLANCO);
         pie.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Estilo.GRIS_LINEA));
 
-        JLabel leyendaAdmin = new JLabel("■  Administrador");
+        JLabel leyendaAdmin = new JLabel("Administrador");
         leyendaAdmin.setForeground(new Color(60, 90, 160));
         leyendaAdmin.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        JLabel leyendaProf = new JLabel("■  Profesor");
+        JLabel leyendaProf = new JLabel("Profesor");
         leyendaProf.setForeground(Color.GRAY);
         leyendaProf.setFont(new Font("Segoe UI", Font.PLAIN, 11));
 

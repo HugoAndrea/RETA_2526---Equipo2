@@ -66,7 +66,7 @@ public class InformesPanel extends javax.swing.JPanel {
 
         // --- Cabecera + configuracion en NORTH ---
         JPanel norte = new JPanel(new BorderLayout());
-        norte.add(Estilo.barraHeader("📋  Generacion de Informes"), BorderLayout.NORTH);
+        norte.add(Estilo.barraHeader("Generacion de Informes"), BorderLayout.NORTH);
 
         JPanel config = new JPanel(new GridBagLayout());
         config.setBackground(Estilo.BLANCO);

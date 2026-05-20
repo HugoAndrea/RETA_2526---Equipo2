@@ -21,7 +21,7 @@ import java.util.List;
  */
 public class HistorialEstadoDAO {
 
-    private Connection conn = AccesoBase.getInstance().getConn();
+    private Connection getConn() { return AccesoBase.getInstance().getConn(); }
 
     /**
      * 
@@ -32,7 +32,7 @@ public class HistorialEstadoDAO {
         String sql = "INSERT INTO historialEstado (fecha, idObjetoInventario, idEstado, idUsuario) "
                    + "VALUES (?, ?, ?, ?)";
 
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = getConn().prepareStatement(sql)) {
             ps.setDate(1, Date.valueOf(h.getFecha()));
             ps.setInt(2, h.getIdObjeto());
             ps.setInt(3, h.getIdEstado());
@@ -60,7 +60,7 @@ public class HistorialEstadoDAO {
                 + "WHERE h.idObjetoInventario = ? "
                 + "ORDER BY h.fecha DESC";
 
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = getConn().prepareStatement(sql)) {
             ps.setInt(1, idObjeto);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -94,7 +94,7 @@ public class HistorialEstadoDAO {
                    + "WHERE h.idObjetoInventario = ? "
                    + "ORDER BY h.fecha DESC LIMIT 1";
         
-        try(PreparedStatement ps = conn.prepareStatement(sql)){
+        try(PreparedStatement ps = getConn().prepareStatement(sql)){
             ps.setInt(1, idObjeto);
             ResultSet rs = ps.executeQuery();
             

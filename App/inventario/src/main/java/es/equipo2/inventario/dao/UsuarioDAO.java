@@ -117,13 +117,27 @@ public class UsuarioDAO {
     *   @param id del usuario
     *   @return true si lo borra
     */
-    public boolean eliminar(int id){
-        String sql = "DELETE FROM usuario WHERE idUsuario = ?";
-        
-        try(PreparedStatement ps = getConn().prepareStatement(sql)){
-            ps.setInt(1, id);
-            
-            return ps.executeUpdate() > 0;
+ public boolean eliminar(int id){
+        // Primero eliminamos las filas dependientes para no violar las FK
+        String[] dependientes = {
+            "DELETE FROM visitas WHERE idUsuario = ?",
+            "DELETE FROM informe  WHERE idUsuario = ?",
+            "DELETE FROM movimiento WHERE idUsuario = ?",
+            "DELETE FROM historialEstado WHERE idUsuario = ?"
+        };
+
+        try {
+            for (String dep : dependientes) {
+                try (PreparedStatement ps = getConn().prepareStatement(dep)) {
+                    ps.setInt(1, id);
+                    ps.executeUpdate();
+                }
+            }
+            String sql = "DELETE FROM usuario WHERE idUsuario = ?";
+            try (PreparedStatement ps = getConn().prepareStatement(sql)) {
+                ps.setInt(1, id);
+                return ps.executeUpdate() > 0;
+            }
         } catch (SQLException e) {
             Teclado.error("Error al eliminar usuario: " + e.getMessage());
             return false;

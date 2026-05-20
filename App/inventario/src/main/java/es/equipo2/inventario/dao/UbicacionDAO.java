@@ -21,7 +21,7 @@ import java.util.List;
  */
 public class UbicacionDAO {
     
-    private Connection conn = AccesoBase.getInstance().getConn();
+    private Connection getConn() { return AccesoBase.getInstance().getConn(); }
     
     /**
      * devuelve todas las ubicaciones de una balda concreta
@@ -33,7 +33,7 @@ public class UbicacionDAO {
         
         String sql = "SELECT * FROM ubicacion WHERE idBalda = ? ORDER BY posicion";
         
-        try(PreparedStatement ps = conn.prepareStatement(sql)){
+        try(PreparedStatement ps = getConn().prepareStatement(sql)){
             ps.setInt(1, idBalda);
             ResultSet rs = ps.executeQuery();
             while(rs.next()){
@@ -58,8 +58,8 @@ public class UbicacionDAO {
         List<Ubicacion> lista = new ArrayList<>();
         String sql = "SELECT * FROM ubicacion ORDER BY idBalda, posicion";
         
-        try(Statement st = conn.prepareStatement(sql)){
-            ResultSet rs = st.executeQuery(sql);
+        try(Statement st = getConn().createStatement();
+            ResultSet rs = st.executeQuery(sql)){
             while(rs.next()){
                 lista.add(new Ubicacion(
                         rs.getInt("idUbicacion"),
@@ -83,7 +83,7 @@ public class UbicacionDAO {
     public Ubicacion obtenerPorId(int idUbicacion){
         String sql = "SELECT * FROM ubicacion WHERE idUbicacion = ?";
         
-        try(PreparedStatement ps = conn.prepareStatement(sql)){
+        try(PreparedStatement ps = getConn().prepareStatement(sql)){
            ps.setInt(1, idUbicacion);
            ResultSet rs = ps.executeQuery();
             if (rs.next()) {

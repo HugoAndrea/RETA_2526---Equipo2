@@ -83,41 +83,49 @@ public class InventarioPanel extends javax.swing.JPanel {
     /**
      * Construye la interfaz del panel de inventario.
      */
-    private void myInitComponents() {
+          private void myInitComponents() {
         setLayout(new BorderLayout(0, 0));
         setBackground(Estilo.GRIS_FONDO);
 
         // Cabecera + toolbar norte
         JPanel norte = new JPanel(new BorderLayout());
-        norte.add(Estilo.barraHeader("📦  Gestion del Inventario"), BorderLayout.NORTH);
+        norte.add(Estilo.barraHeader("Gestion del Inventario"), BorderLayout.NORTH);
 
-        JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        JPanel toolbar = new JPanel(new BorderLayout());
         toolbar.setBackground(Estilo.BLANCO);
         toolbar.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Estilo.GRIS_LINEA));
 
-        btnAlta = Estilo.botonExito("＋  Alta");
-        btnModificar = Estilo.botonAdvertencia("✎  Modificar");
-        btnBaja = Estilo.botonPeligro("✕  Baja");
-        btnImportar = Estilo.boton("⬆  Importar CSV", new Color(80, 100, 160));
-        btnExportar = Estilo.botonPrimario("⬇  Exportar");
-        btnRefrescar = Estilo.botonPrimario("↺  Refrescar");
+        btnAlta = Estilo.botonExito("Alta");
+        btnModificar = Estilo.botonAdvertencia("Modificar");
+        btnBaja = Estilo.botonPeligro("Baja");
+        btnImportar = Estilo.boton("Importar CSV", new Color(80, 100, 160));
+        btnExportar = Estilo.botonPrimario("Exportar");
+        btnRefrescar = Estilo.botonPrimario("Refrescar");
 
+        // Panel izquierdo: botones de acción
+        JPanel botonesIzq = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        botonesIzq.setBackground(Estilo.BLANCO);
+        botonesIzq.add(btnAlta);
+        botonesIzq.add(btnModificar);
+        botonesIzq.add(btnBaja);
+        botonesIzq.add(new JSeparator(SwingConstants.VERTICAL));
+        botonesIzq.add(btnImportar);
+        botonesIzq.add(btnExportar);
+        botonesIzq.add(new JSeparator(SwingConstants.VERTICAL));
+        botonesIzq.add(btnRefrescar);
+
+        // Panel derecho: barra de búsqueda siempre visible
         JLabel lblBuscar = Estilo.label("Buscar:");
         txtBuscar = Estilo.campo(18);
-        JButton btnBuscarRapido = Estilo.botonPrimario("🔍");
+        JButton btnBuscarRapido = Estilo.botonPrimario("Buscar");
+        JPanel panelBuscar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 10));
+        panelBuscar.setBackground(Estilo.BLANCO);
+        panelBuscar.add(lblBuscar);
+        panelBuscar.add(txtBuscar);
+        panelBuscar.add(btnBuscarRapido);
 
-        toolbar.add(btnAlta);
-        toolbar.add(btnModificar);
-        toolbar.add(btnBaja);
-        toolbar.add(new JSeparator(SwingConstants.VERTICAL));
-        toolbar.add(btnImportar);
-        toolbar.add(btnExportar);
-        toolbar.add(new JSeparator(SwingConstants.VERTICAL));
-        toolbar.add(btnRefrescar);
-        toolbar.add(Box.createHorizontalStrut(10));
-        toolbar.add(lblBuscar);
-        toolbar.add(txtBuscar);
-        toolbar.add(btnBuscarRapido);
+        toolbar.add(botonesIzq, BorderLayout.CENTER);
+        toolbar.add(panelBuscar, BorderLayout.EAST);
 
         norte.add(toolbar, BorderLayout.SOUTH);
 
@@ -179,7 +187,7 @@ public class InventarioPanel extends javax.swing.JPanel {
         txtBuscar.addActionListener(e -> buscarRapido());
     }
 
-    public void cargarDatos() {
+     public void cargarDatos() {
         modeloTabla.setRowCount(0);
         for (Objeto o : controller.listarTodo()) {
             modeloTabla.addRow(new Object[]{
@@ -304,6 +312,7 @@ public class InventarioPanel extends javax.swing.JPanel {
         o.setDescripcion(txtDesc.getText().trim());
         o.setCantidad(cantidad);
         o.setObservaciones(txtObs.getText().trim());
+        o.setFechaAlta(java.time.LocalDate.now());
         // Categoria: si habia combo usamos el seleccionado; si no, idCategoria queda a 0 (null en BD)
         if (cmbCat != null && cmbCat.getSelectedItem() != null) {
             o.setIdCategoria(((Categoria) cmbCat.getSelectedItem()).getId());
@@ -323,10 +332,7 @@ public class InventarioPanel extends javax.swing.JPanel {
         }
     }
 
-    /**
-     * Muestra
-     */
-    private void mostrarDialogoModificar() {
+private void mostrarDialogoModificar() {
         int fila = tabla.getSelectedRow();
         if (fila == -1) {
             JOptionPane.showMessageDialog(this, "Selecciona un objeto");
@@ -436,7 +442,7 @@ public class InventarioPanel extends javax.swing.JPanel {
         btnImportar.setEnabled(false);
         btnImportar.setText("Importando...");
 
-        new HiloImportacion(ruta, objetoDAO, () -> {
+        new HiloImportacion(ruta, new ObjetoDAO(), () -> {
             cargarDatos();
             btnImportar.setEnabled(true);
             btnImportar.setText("⬆  Importar CSV");

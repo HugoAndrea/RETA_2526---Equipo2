@@ -20,7 +20,7 @@ import java.util.List;
  * 
  */
 public class EstadoDAO {
-    private Connection conn = AccesoBase.getInstance().getConn();
+    private Connection getConn() { return AccesoBase.getInstance().getConn(); }
     
     /**
      * 
@@ -30,7 +30,7 @@ public class EstadoDAO {
         String sql = "SELECT * FROM estado ORDER BY nombre";
         List<Estado> lista = new ArrayList<>();
         
-        try(Statement st = conn.createStatement()){
+        try(Statement st = getConn().createStatement()){
             ResultSet rs = st.executeQuery(sql);
             while(rs.next()){
                 lista.add(new Estado(

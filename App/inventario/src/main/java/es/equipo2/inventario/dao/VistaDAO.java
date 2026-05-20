@@ -19,7 +19,7 @@ import java.time.LocalDate;
  * Registra accesos de usuarios al sistema
  */
 public class VistaDAO {
-    private Connection conn = AccesoBase.getInstance().getConn();
+    private Connection getConn() { return AccesoBase.getInstance().getConn(); }
     
     /**
      * Registra el acceso de usuario al sistema
@@ -29,7 +29,7 @@ public class VistaDAO {
     public boolean registrarAcceso(int id){
         String sql = "INSERT INTO visitas (fecha, idUsuario) VALUES (?,?)";
         
-        try(PreparedStatement ps = conn.prepareStatement(sql)){
+        try(PreparedStatement ps = getConn().prepareStatement(sql)){
             ps.setDate(1, Date.valueOf(LocalDate.now()));
             ps.setInt(2, id);
             return ps.executeUpdate() > 0;

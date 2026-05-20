@@ -45,9 +45,7 @@ public class Categoria {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Categoria: \n");
-        sb.append("Id: ").append(id).append("\n");
-        sb.append("Nombre: ").append(nombre).append("\n");
+        sb.append(nombre).append("\n");
         return sb.toString();
     }
     
