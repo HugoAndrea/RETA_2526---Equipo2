@@ -100,7 +100,7 @@ create table objetoInventario(-- Almacena los objetos que se guardan en los arma
 	foreign key (idCategoria) references categoria(idCategoria)
 );
 
-alter table objetoinventario -- Columnas añadidas a objetoInventario
+alter table objetoInventario -- Columnas añadidas a objetoInventario
 add column descripcion varchar(200),
 add column cantidad int not null default 1,
 add column fechaAlta date not null,
