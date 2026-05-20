@@ -45,7 +45,6 @@ public class InventarioPanel extends javax.swing.JPanel {
      * Creates new form InventarioPanel
      */
     public InventarioPanel() {
-        initComponents();
         if (uc.esAdmin()) {
             myInitComponents();
             cargarDatos();
