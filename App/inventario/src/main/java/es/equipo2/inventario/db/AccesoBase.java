@@ -34,12 +34,27 @@ public class AccesoBase {
      *  cargar archivo
      */
     public void cargarArchivo(){
-        try(FileInputStream file = new FileInputStream("configuracion.properties")){
-            prop.load(file);
-            
-            this.url = prop.getProperty("db.url");
-            this.usuario = prop.getProperty("db.usuario");
-            this.clave = prop.getProperty("db.clave");
+        // 1. Intentar cargar desde el directorio de trabajo (junto al JAR)
+        java.io.File externo = new java.io.File("configuracion.properties");
+        try {
+            java.io.InputStream is;
+            if (externo.exists()) {
+                is = new FileInputStream(externo);
+                System.out.println("Configuracion cargada desde: " + externo.getAbsolutePath());
+            } else {
+                // 2. Si no existe fuera, buscarlo dentro del JAR
+                is = getClass().getClassLoader().getResourceAsStream("configuracion.properties");
+                if (is == null) {
+                    System.out.println("Error al cargar el archivo con configuraciones");
+                    return;
+                }
+                System.out.println("Configuracion cargada desde el JAR");
+            }
+            prop.load(is);
+            is.close();
+            this.url      = prop.getProperty("db.url");
+            this.usuario  = prop.getProperty("db.usuario");
+            this.clave    = prop.getProperty("db.clave");
             System.out.println("Configuración Cargada");
         } catch (IOException e) {
             System.out.println("Error al cargar el archivo con configuraciones");

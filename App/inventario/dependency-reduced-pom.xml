@@ -7,14 +7,51 @@
   <build>
     <plugins>
       <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <id>copy-config</id>
+            <phase>package</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+                <copy />
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>3.2.4</version>
+        <version>3.5.1</version>
         <executions>
           <execution>
             <phase>package</phase>
             <goals>
               <goal>shade</goal>
             </goals>
+            <configuration>
+              <outputFile>${project.build.directory}/inventario-completo.jar</outputFile>
+              <transformers>
+                <transformer>
+                  <mainClass>es.equipo2.inventario.main.InventarioMain</mainClass>
+                </transformer>
+                <transformer />
+              </transformers>
+              <filters>
+                <filter>
+                  <artifact>*:*</artifact>
+                  <excludes>
+                    <exclude>META-INF/*.SF</exclude>
+                    <exclude>META-INF/*.DSA</exclude>
+                    <exclude>META-INF/*.RSA</exclude>
+                  </excludes>
+                </filter>
+              </filters>
+            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -22,7 +59,7 @@
   </build>
   <properties>
     <maven.compiler.release>24</maven.compiler.release>
-    <exec.mainClass>com.mycompany.inventario.Inventario</exec.mainClass>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <exec.mainClass>es.equipo2.inventario.main.InventarioMain</exec.mainClass>
   </properties>
 </project>
