@@ -25,7 +25,7 @@ public class HiloImportacion extends Thread{
         this.callback = callback;
     }
     
-    public void ejecutar(){
+    public void run(){
         Teclado.error("Iniciando importación: " + rutaArchivo);
         
         ImportadorCSV lector = new ImportadorCSV();
