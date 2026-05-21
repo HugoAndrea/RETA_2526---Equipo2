@@ -46,7 +46,7 @@ public class InformesController {
         return objdao.buscar("", "", "", estado);
     }
     /**
-     * 
+     * hace lista de de objetos  por balda y armario    
      * @param idArmario
      * @param numBalda
      * @return 
@@ -57,7 +57,7 @@ public class InformesController {
     
     /**
      * 
-     * @return 
+     * @return retorna la lista de informes
      */
     public List<Movimiento> informeMovmiento(){
         return movdao.listarTodos();

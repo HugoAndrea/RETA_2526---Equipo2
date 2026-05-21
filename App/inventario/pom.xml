@@ -5,7 +5,7 @@
     <artifactId>inventario</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
-
+ 
     <dependencies>
         <dependency>
             <groupId>org.apache.poi</groupId>
@@ -49,13 +49,13 @@
             <version>0.7.1</version>
         </dependency>
     </dependencies>
-
+ 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>24</maven.compiler.release>
         <exec.mainClass>es.equipo2.inventario.main.InventarioMain</exec.mainClass>
     </properties>
-
+ 
     <build>
         <plugins>
             <!-- Copia configuracion.properties a target/ automaticamente -->
@@ -78,7 +78,7 @@
                     </execution>
                 </executions>
             </plugin>
-
+ 
             <!-- Empaqueta todas las dependencias en un solo JAR ejecutable -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -109,6 +109,22 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+ 
+            <!-- Javadoc: ignora warnings de comentarios incompletos -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.12.0</version>
+                <configuration>
+                    <failOnWarnings>false</failOnWarnings>
+                    <failOnError>false</failOnError>
+                    <doclint>none</doclint>
+                    <quiet>true</quiet>
+                    <encoding>UTF-8</encoding>
+                    <charset>UTF-8</charset>
+                    <docencoding>UTF-8</docencoding>
+                </configuration>
             </plugin>
         </plugins>
     </build>
