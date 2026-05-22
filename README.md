@@ -75,11 +75,11 @@ Estructura del cuaderno de trabajo.
 *   **App 📁**
 Aplicación/ .java ejecutable terminado.
 *   **Assets 📁**
-Archivos miscelaneos (imágenes, videos, etc).
+Archivos miscelaneos (imágenes, videos, esquemas, etc).
 *   **Config 📁**
 Archivos relacionados con la configuración de herramientas.
 *   **DB 📁**
-Script y diagramas de la base de datos.
+Script de la base de datos.
 *   **Documentación 📁**
 Documentos explicativos de la realización del reto.
 *   **Index 📁**
