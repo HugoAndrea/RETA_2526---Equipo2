@@ -108,3 +108,7 @@ En este proyecto trabajan:
 
 Este proyecto está distribuido bajo la licencia MIT.
 Consulta el archivo LICENSE para más información.
+
+## 🔒 .Gitignore
+
+En este documento se escribirán los nombres de archivos que no se desee hacer públicos.
