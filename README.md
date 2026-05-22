@@ -68,7 +68,7 @@ Cada elemento registrará como mínimo: ID, nombre, descripción, categoría/sub
 Se implementarán uno o varios disparadores (triggers) que automaticen operaciones relevantes del inventario.
 
 
-## 🗂️ Organización de Carpetas
+## 🗂️ Carpeta del proyecto
 
 *   **App 📁**
 Aplicación (archivo ejecutable .jar y  carpeta con archivos de java.)
@@ -84,6 +84,11 @@ Archivos .HTML y .JS.
 Ejemplo de como escribir el cuaderno de trabajo y plantilla con la estructura del mismo.
 *   **Tests 📁**
 Pruebas/ archivos temporales
+*   **.Gitignore 🔒**
+En este documento se escribirán los nombres de archivos que no se desee hacer públicos.
+*   **Licencia 📃**
+Este proyecto está distribuido bajo la licencia MIT.
+Consulta el archivo LICENSE para más información.
 
 ## 👥 Integrantes del Grupo
 
@@ -103,12 +108,3 @@ En este proyecto trabajan:
 *   **Configuración y gestión de MVs** Oracle VirtualBox.
 *   **Control de Versiones:** GitHub, GitHub desktop.
 
-
-## 📃 Licencia
-
-Este proyecto está distribuido bajo la licencia MIT.
-Consulta el archivo LICENSE para más información.
-
-## 🔒 .Gitignore
-
-En este documento se escribirán los nombres de archivos que no se desee hacer públicos.
