@@ -70,14 +70,10 @@ Se implementarán uno o varios disparadores (triggers) que automaticen operacion
 
 ## 🗂️ Organización de Carpetas
 
-*   **.github/ISSUE_TEMPLATE 📁**
-Estructura del cuaderno de trabajo.
 *   **App 📁**
 Aplicación (archivo ejecutable .jar y  carpeta con archivos de java.)
 *   **Assets 📁**
 Archivos miscelaneos (imágenes, videos, esquemas, etc).
-*   **Config 📁**
-Archivos relacionados con la configuración de herramientas.
 *   **DB 📁**
 Script de la base de datos.
 *   **Documentación 📁**
@@ -85,9 +81,7 @@ Documentos explicativos de la realización del reto.
 *   **Index 📁**
 Archivos .HTML y .JS.
 *   **Instrucciones_cuaderno_trabajo 📁**
-Ejemplo de como escribir el cuaderno de trabajo.
-*   **Styles 📁**
-Archivo .CSS.
+Ejemplo de como escribir el cuaderno de trabajo y plantilla con la estructura del mismo.
 *   **Tests 📁**
 Pruebas/ archivos temporales
 
