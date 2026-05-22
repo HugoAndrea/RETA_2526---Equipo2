@@ -2,7 +2,7 @@
 
 El objetivo de este trabajo grupal, será crear con los conocimientos adquiridos en cada módulo a lo largo del curso, una página web y aplicación de escritorio, con su correspondiente base de datos, que permitan a los usuarios hacer un seguimiento preciso del inventario del taller de informática del instituto, el proyecto se desplegará en dos máquinas virtuales de linux que deberán ser previamente preparadas para que puedan conectarse la una con la otra.
 
-Se trabajará aplicando la metodología scrum, es decir, se harán reuniones diarias para comentar tonto el progreso como las complicaciones en el proyecto, y para asignar a cada componente del grupo tareas o metas que deberán cumplir en un plazo determinado.
+Se trabajará aplicando la metodología scrum, es decir, se harán reuniones diarias para asignar a cada componente del grupo tareas o metas que deberán cumplir en un plazo determinado, también nos reuniremos cuando finalice cada jornada/sprint para entregar resultados y comentar tanto el progreso como las complicaciones en el proyecto.  
 
 ## 🧭 Descripción de Las Partes del Proyecto
 
@@ -59,7 +59,7 @@ Se diseñará e implementará una base de datos relacional MySQL alojada en MV1 
 - PC’s para prácticas (portátiles, PC)
 - Componentes hardware (placas base, memorias RAM, procesadores, discos duros, chasis/torres)
 - Equipos de red (switches, routers, puntos de acceso, patch panels)
- Cableado estructurado (rosetas, cable UTP/FTP, fibra óptica)
+- Cableado estructurado (rosetas, cable UTP/FTP, fibra óptica)
 - Herramientas de soldadura y herramientas generales (multímetros, crimpadoras, destornilladores)
 - Material fungible (cable UTP, alcohol isopropílico, pasta térmica, consumibles)
 
@@ -73,7 +73,7 @@ Se implementarán uno o varios disparadores (triggers) que automaticen operacion
 *   **.github/ISSUE_TEMPLATE 📁**
 Estructura del cuaderno de trabajo.
 *   **App 📁**
-Aplicación/ .java ejecutable terminado.
+Aplicación (archivo ejecutable .jar y  carpeta con archivos de java.)
 *   **Assets 📁**
 Archivos miscelaneos (imágenes, videos, esquemas, etc).
 *   **Config 📁**
